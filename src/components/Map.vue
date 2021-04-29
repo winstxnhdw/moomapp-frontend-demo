@@ -5,7 +5,15 @@
       <l-polyline :lat-lngs="interpolate" :color="polyline.color" :opacity="polyline.opacity" :dashArray="polyline.dashArray"/>
 
       <v-marker-cluster :options="clusterOptions" @clusterclick="click()" @ready="ready">
-        <l-marker :draggable="true" :key="index" v-for="(marker, index) in markers" :lat-lng="marker" @click="deleteMarker(index)" @drag="updatePath($event, index)"></l-marker>
+        <l-marker
+          :draggable="true" 
+          :key="index" 
+          :lat-lng="marker"
+          :icon="icon"
+          v-for="(marker, index) in markers" 
+          @click="deleteMarker(index)" 
+          @drag="updatePath($event, index)">
+        </l-marker>
       </v-marker-cluster>
 
       <l-control position="bottomleft" >
@@ -31,6 +39,11 @@ export default {
       center: L.latLng(1.331142, 103.774454),
       url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       markers: [],
+      icon: L.icon({
+        iconUrl: 'http://leafletjs.com/examples/custom-icons/leaf-green.png',
+        iconSize: [32, 37],
+        iconAnchor: [16, 37]
+      }),
       clusterOptions: {
         disableClusteringAtZoom: 18,
         chunkedLoading: true
@@ -38,7 +51,7 @@ export default {
       polyline: {
         color: '#F04759',
         opacity: 0.6,
-        dashArray: [5, 10]
+        dashArray: "5, 10"
       },
       interpolate: [],
       mode: 'create'
@@ -81,6 +94,15 @@ export default {
     ready: (e) => console.log('ready', e),
   },
   
+  computed: {
+    dynamicSize() {
+      return [this.iconSize, this.iconSize * 1.15];
+    },
+    dynamicAnchor() {
+      return [this.iconSize / 2, this.iconSize * 1.15];
+    }
+  },
+
   mounted() {
     this.$nextTick(() => {
       const map = this.$refs.map.mapObject;
