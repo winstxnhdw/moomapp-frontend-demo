@@ -39,7 +39,7 @@ export default {
       url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       markers: [],
       icon: L.icon({
-        iconUrl: require('/src/assets/marker.png'),
+        iconUrl: require('/src/assets/marker.svg'),
         iconSize: [20, 20],
         iconAnchor: [10, 10]
       }),
