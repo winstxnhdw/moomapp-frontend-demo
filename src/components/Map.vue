@@ -2,18 +2,25 @@
   <div class="map">
     <l-map :options="{attributionControl: false, zoomControl: false}" :zoom="zoom" :center="center" @click="addMarker">
       <l-tile-layer :url="url"></l-tile-layer>
-      <l-marker :draggable="true" :key="index" v-for="(marker, index) in markers" :lat-lng="marker" @click="removeMarker(index)"></l-marker>
+      <l-polyline :lat-lngs="interpolate" />
+
+      <v-marker-cluster :options="clusterOptions" @clusterclick="click()" @ready="ready">
+        <l-marker :draggable="true" :key="index" v-for="(marker, index) in markers" :lat-lng="marker" @click="removeMarker(index)"></l-marker>
+      </v-marker-cluster>
+
       <l-control position="bottomleft" >
         <button type="button" class="btn btn-dark buttons" @click="allowDelete"> Delete Mode </button>
         <button type="button" class="btn btn-dark buttons" @click="allowCreate"> Create Mode </button>
       </l-control>
+    
     </l-map>
   </div>
 </template>
 
 <script>
 import L from 'leaflet';
-import { LMap, LTileLayer, LMarker, LControl} from 'vue2-leaflet';
+import { LMap, LTileLayer, LMarker, LControl, LPolyline} from 'vue2-leaflet';
+import Vue2LeafletMarkercluster from 'vue2-leaflet-markercluster';
 
 export default {
   name: 'Map',
@@ -22,9 +29,12 @@ export default {
       zoom: 18,
       center: L.latLng(1.331142, 103.774454),
       url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
-      markers: [
-        L.latLng(1.331142, 103.774454)
-      ],
+      markers: [],
+      clusterOptions: {
+        disableClusteringAtZoom: 18,
+        chunkedLoading: true
+      },
+      interpolate: [],
       mode: 'create'
     }
   },
@@ -34,6 +44,8 @@ export default {
     LTileLayer,
     LMarker,
     LControl,
+    LPolyline,
+    "v-marker-cluster": Vue2LeafletMarkercluster
     },
 
   methods: {
@@ -46,18 +58,26 @@ export default {
     removeMarker(index) {
       if(this.mode == 'delete') {
         this.markers.splice(index, 1);
+        this.interpolate.splice(index, 1);
       }
     },
     addMarker(event) {
       if(this.mode == 'create') {
         this.markers.push(event.latlng);
+        this.interpolate.push([event.latlng.lat, event.latlng.lng]);
       }
-    }
+    },
+    
+    click: (e) => console.log("clusterclick", e),
+    ready: (e) => console.log('ready', e),
   }
 };
 </script>
 
 <style scoped>
+  @import "~leaflet.markercluster/dist/MarkerCluster.css";
+  @import "~leaflet.markercluster/dist/MarkerCluster.Default.css";
+
   .map {
     height: 100vh;
     width: 100vw;
