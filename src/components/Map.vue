@@ -28,7 +28,7 @@ export default {
     return {
       zoom: 18,
       center: L.latLng(1.331142, 103.774454),
-      url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+      url: 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png',
       markers: [],
       clusterOptions: {
         disableClusteringAtZoom: 18,
