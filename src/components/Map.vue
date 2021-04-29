@@ -2,7 +2,7 @@
   <div class="map">
     <l-map ref="map" :options="{attributionControl: false, zoomControl: false}" :zoom="zoom" :center="center" @click="createMarker">
       <l-tile-layer :url="url"></l-tile-layer>
-      <l-polyline :lat-lngs="interpolate" />
+      <l-polyline :lat-lngs="interpolate" :color="polyline.color" :opacity="polyline.opacity" :dashArray="polyline.dashArray"/>
 
       <v-marker-cluster :options="clusterOptions" @clusterclick="click()" @ready="ready">
         <l-marker :draggable="true" :key="index" v-for="(marker, index) in markers" :lat-lng="marker" @click="deleteMarker(index)" @drag="updatePath($event, index)"></l-marker>
@@ -34,6 +34,11 @@ export default {
       clusterOptions: {
         disableClusteringAtZoom: 18,
         chunkedLoading: true
+      },
+      polyline: {
+        color: '#F04759',
+        opacity: 0.6,
+        dashArray: [5, 10]
       },
       interpolate: [],
       mode: 'create'
@@ -82,14 +87,12 @@ export default {
       const drawControl = new window.L.Control.Draw({
         position: 'topleft',
         draw: {
-          polyline: {
-            allowIntersection: false,
-            showArea: true
-          },
+          polyline: false,
           polygon: false,
           rectangle: true,
           circle: true,
-          marker: false,
+          circlemarker: false,
+          marker: false
         }
       });
 
@@ -99,7 +102,7 @@ export default {
 
       map.on(window.L.Draw.Event.CREATED, (e) => {
         const layer = e.layer;
-        editableLayers.addLayer(layer);
+        editableLayers.removeLayer(layer);
       });
 
       map.on('draw:toolbaropened', () => {
