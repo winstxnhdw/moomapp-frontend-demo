@@ -17,8 +17,7 @@
       </v-marker-cluster>
 
       <l-control position="bottomleft" >
-        <button type="button" class="btn btn-dark buttons" @click="allowDelete"> Delete Mode </button>
-        <button type="button" class="btn btn-dark buttons" @click="allowCreate"> Create Mode </button>
+        <button type="button" class="btn btn-dark buttons" data-toggle="button" @click="modeSwitch"> {{mode}} </button>
       </l-control>
     
     </l-map>
@@ -40,9 +39,9 @@ export default {
       url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       markers: [],
       icon: L.icon({
-        iconUrl: 'http://leafletjs.com/examples/custom-icons/leaf-green.png',
-        iconSize: [32, 37],
-        iconAnchor: [16, 37]
+        iconUrl: require('/src/assets/marker.png'),
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
       }),
       clusterOptions: {
         disableClusteringAtZoom: 18,
@@ -54,7 +53,8 @@ export default {
         dashArray: "5, 10"
       },
       interpolate: [],
-      mode: 'create'
+      mode: 'Create Mode',
+      buttonActive: false
     }
   },
 
@@ -68,20 +68,27 @@ export default {
     },
 
   methods: {
-    allowCreate() {
-      this.mode = 'create'
-    },
-    allowDelete() {
-      this.mode = 'delete'
+    modeSwitch() {
+      if(this.mode == 'Create Mode') {
+        this.mode = 'Delete Mode'
+      }
+
+      else if(this.mode == 'Delete Mode') {
+        this.mode = 'Create Mode'
+      }
+
+      else {
+        this.mode = 'Create Mode'
+      }
     },
     deleteMarker(index) {
-      if(this.mode == 'delete') {
+      if(this.mode == 'Delete Mode') {
         this.markers.splice(index, 1);
         this.interpolate.splice(index, 1);
       }
     },
     createMarker(event) {
-      if(this.mode == 'create') {
+      if(this.mode == 'Create Mode') {
         this.markers.push(event.latlng);
         this.interpolate.push([event.latlng.lat, event.latlng.lng]);
       }
@@ -128,7 +135,7 @@ export default {
       });
 
       map.on('draw:toolbaropened', () => {
-        this.mode = 'draw'
+        this.mode = 'Draw Mode'
       });
     });
   }
