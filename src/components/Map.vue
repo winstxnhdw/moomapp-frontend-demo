@@ -1,5 +1,6 @@
 <template>
-  <div class="map">
+  <div id="map">
+    <div id='vignette'> </div>
     <l-map ref="map" :options="{attributionControl: false, zoomControl: false}" :zoom="zoom" :center="center" @click="createMarker">
       <l-tile-layer :url="url"></l-tile-layer>
       <l-polyline :lat-lngs="interpolate" :color="polyline.color" :opacity="polyline.opacity" :dashArray="polyline.dashArray"/>
@@ -12,7 +13,8 @@
           :icon="icon"
           v-for="(marker, index) in markers" 
           @click="deleteMarker(index)" 
-          @drag="updatePath($event, index)">
+          @drag="updatePath($event, index)"
+          @dragend="updateLast($event, index)">
         </l-marker>
       </v-marker-cluster>
 
@@ -96,6 +98,10 @@ export default {
     updatePath(event, index) {
       this.interpolate.splice(index, 1, [event.latlng.lat, event.latlng.lng]);
     },
+    updateLast(event, index) {
+      var latlng = event.target.getLatLng()
+      this.markers[index] = [latlng.lat, latlng.lng];
+    },
     
     click: (e) => console.log("clusterclick", e),
     ready: (e) => console.log('ready', e),
@@ -147,12 +153,26 @@ export default {
   @import "~leaflet.markercluster/dist/MarkerCluster.css";
   @import "~leaflet.markercluster/dist/MarkerCluster.Default.css";
 
-  .map {
+  #map {
+    position: 'relative';
     height: 100vh;
     width: 100vw;
+    z-index: -1;
   }
 
   .buttons {
     margin-right: 5px;
+    z-index: 1;
   }
+
+  #vignette {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-shadow: inset 0 0 1000px black;
+    z-index: 1000;
+    pointer-events: none;
+}
 </style>
