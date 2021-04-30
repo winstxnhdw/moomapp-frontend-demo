@@ -1,5 +1,5 @@
 # moomap-frontend
-Web app to showcase UI for waypoint management.
+Web app to showcase waypoint management UI for MooVita.
 ## Project setup
 ```
 npm install
