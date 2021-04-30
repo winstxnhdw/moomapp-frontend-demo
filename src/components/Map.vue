@@ -18,6 +18,17 @@
         </l-marker>
       </v-marker-cluster>
 
+      <!-- <v-marker-cluster :options="clusterOptions" @clusterclick="click()" @ready="ready">
+        <l-marker
+          :opacity=0.5
+          :draggable="false" 
+          :key="index" 
+          :lat-lng="marker"
+          :icon="icon"
+          v-for="(marker, index) in markers">
+        </l-marker>
+      </v-marker-cluster> -->
+
       <l-control position="bottomleft" >
         <button type="button" class="btn btn-dark buttons" data-toggle="button" @click="modeSwitch"> {{mode}} </button>
       </l-control>
@@ -136,7 +147,26 @@ export default {
       const editableLayers = new window.L.FeatureGroup().addTo(map);
 
       map.on(window.L.Draw.Event.CREATED, (e) => {
-        const layer = e.layer;
+        var markersInside = [];
+        var layer = e.layer;
+        var type = e.layerType;
+
+        if(type === 'rectangle') {
+          for(var i=0; i < this.markers.length; i++) {
+            if(layer.getBounds().contains(this.markers[i]) == true) {
+              markersInside.push(this.markers[i]);
+            }
+          }
+        }
+
+        else if(type === 'circle') {
+          for(var n=0; n < this.markers.length; n++) {
+            if(layer.getLatLng().distanceTo(this.markers[n]) < layer.getRadius()) {
+              markersInside.push(this.markers[n]);
+            }
+          }
+        }
+
         editableLayers.removeLayer(layer);
       });
 
