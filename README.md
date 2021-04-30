@@ -1,5 +1,5 @@
 # moomap-frontend
-
+Web app to showcase UI for waypoint management.
 ## Project setup
 ```
 npm install
