@@ -2,9 +2,9 @@
   <div id="map">
     <div id='vignette'> </div>
     <l-map ref="map" 
-      :options="{attributionControl: false, zoomControl: false}" 
+      :options="{attributionControl: false, zoomControl: false, zoomSnap: 0, wheelPxPerZoomLevel: 30, wheelDebounceTime: 0}" 
       :zoom="zoom" 
-      :center="center" 
+      :center="center"
       @click="createMarker">
 
       <l-tile-layer :url="url"></l-tile-layer>
@@ -17,7 +17,7 @@
       <l-marker
         v-for="(marker, index) in markers" 
         :key="index"
-        :draggable="true" 
+        :draggable="draggable" 
         :lat-lng="marker"
         :icon="icon"
         @click="deleteMarker(index)" 
@@ -47,9 +47,11 @@ export default {
       center: L.latLng(1.331142, 103.774454),
       url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       markers: [],
+      selectedMarkersId: [],
       selectedMarkers: [],
       oldMarkerPos: [],
       oldClickedMarkerPos: null,
+      draggable: true,
       icon: L.icon({
         iconUrl: require('/src/assets/marker.svg'),
         iconSize: [20, 20],
@@ -81,15 +83,15 @@ export default {
   methods: {
     modeSwitch() {
       if(this.mode == 'Create Mode') {
-        this.mode = 'Delete Mode'
+        this.mode = 'Delete Mode';
       }
 
       else if(this.mode == 'Delete Mode') {
-        this.mode = 'Create Mode'
+        this.mode = 'Create Mode';
       }
 
       else {
-        this.mode = 'Create Mode'
+        this.mode = 'Create Mode';
       }
     },
     deleteMarker(index) {
@@ -109,13 +111,13 @@ export default {
         var delta_lat = event.latlng.lat - this.oldClickedMarkerPos[0];
         var delta_lng = event.latlng.lng - this.oldClickedMarkerPos[1];
         
-        for(var m=0; m < this.selectedMarkers.length; m++) {
-          var selectedMarker = this.selectedMarkers[m];
-          this.interpolate[selectedMarker][0] = this.oldMarkerPos[m][0] + delta_lat;
-          this.interpolate[selectedMarker][1] = this.oldMarkerPos[m][1] + delta_lng;
-          this.markers[selectedMarker].lat = this.oldMarkerPos[m][0] + delta_lat;
-          this.markers[selectedMarker].lng = this.oldMarkerPos[m][1] + delta_lng;
-        }
+        this.selectedMarkersId.forEach((dummy, id) => {
+          var selectedMarker = this.selectedMarkersId[id];
+          this.interpolate[selectedMarker][0] = this.oldMarkerPos[id][0] + delta_lat;
+          this.interpolate[selectedMarker][1] = this.oldMarkerPos[id][1] + delta_lng;
+          this.markers[selectedMarker].lat = this.oldMarkerPos[id][0] + delta_lat;
+          this.markers[selectedMarker].lng = this.oldMarkerPos[id][1] + delta_lng;
+        });
         this.interpolate.splice();
       }
 
@@ -124,36 +126,39 @@ export default {
       }
     },
     updateLast(event, index) {
-      if(this.mode == 'Select Mode') {
-        console.log(event)
-      }
-
-      else {
+      if(this.mode != 'Select Mode') {
         var latlng = event.target.getLatLng();
         this.markers[index].lat = latlng.lat;
         this.markers[index].lng = latlng.lng;
       }
 
-      this.mode = 'Create Mode'
+      this.mode = 'Create Mode';
     },
 
     saveMarkerPos(event) {
       if(this.mode == 'Select Mode') {
         var latlng = event.target.getLatLng();
-        this.oldMarkerPos = [];
-        this.oldClickedMarkerPos = [latlng.lat, latlng.lng];
         
-        for(var i=0; i < this.selectedMarkers.length; i++) {
-          var selectedMarker = this.selectedMarkers[i];
-          var oldLat = this.markers[selectedMarker].lat;
-          var oldLng = this.markers[selectedMarker].lng;
-          this.oldMarkerPos.push([oldLat, oldLng]);
+        if(this.selectedMarkers.includes(latlng)) {
+          this.oldMarkerPos = [];
+          this.oldClickedMarkerPos = [latlng.lat, latlng.lng];
+        
+          this.selectedMarkersId.forEach((dummy, id) => {
+            var selectedMarker = this.selectedMarkersId[id];
+            var oldLat = this.markers[selectedMarker].lat;
+            var oldLng = this.markers[selectedMarker].lng;
+            this.oldMarkerPos.push([oldLat, oldLng]);
+          }); 
+        }
+
+        else {
+          this.mode = 'Create mode';
         }
       }
     },
     
     click: (e) => console.log("clusterclick", e),
-    ready: (e) => console.log('ready', e),
+    ready: (e) => console.log('ready', e)
   },
   
   computed: {
@@ -185,29 +190,28 @@ export default {
       const editableLayers = new window.L.FeatureGroup().addTo(map);
 
       map.on(window.L.Draw.Event.CREATED, (e) => {
-        var markersInside = [];
         var layer = e.layer;
         var type = e.layerType;
 
         if(type === 'rectangle') {
-          for(var i=0; i < this.markers.length; i++) {
-            if(layer.getBounds().contains(this.markers[i]) == true) {
-              markersInside.push(i);
+          this.markers.forEach((dummy, id) => {
+            if(layer.getBounds().contains(this.markers[id]) == true) {
+              this.selectedMarkersId.push(id);
+              this.selectedMarkers.push(this.markers[id]);
             }
-          }
+          });
         }
 
         else if(type === 'circle') {
-          for(var n=0; n < this.markers.length; n++) {
-            if(layer.getLatLng().distanceTo(this.markers[n]) < layer.getRadius()) {
-              markersInside.push(n);
+          this.markers.forEach((dummy, id) => {
+            if(layer.getLatLng().distanceTo(this.markers[id]) < layer.getRadius()) {
+              this.selectedMarkersId.push(id);
+              this.selectedMarkers.push(this.markers[id])
             }
-          }
+          });
         }
 
         this.mode = 'Select Mode';
-        this.selectedMarkers = markersInside;
-
         editableLayers.removeLayer(layer);
       });
 
