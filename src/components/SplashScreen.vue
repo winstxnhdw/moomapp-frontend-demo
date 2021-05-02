@@ -50,8 +50,7 @@
 </script>
 
 <style scoped>
-  @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
-  @import url('https://fonts.googleapis.com/css2?family=Krona+One&display=swap');
+  @import url("https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap");
 
   .logo {
     margin: 0;
