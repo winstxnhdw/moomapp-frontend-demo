@@ -115,10 +115,12 @@ export default {
         
         this.selectedMarkersId.forEach((dummy, id) => {
           var selectedMarker = this.selectedMarkersId[id];
-          this.interpolate[selectedMarker][0] = this.oldMarkerPos[id][0] + delta_lat;
-          this.interpolate[selectedMarker][1] = this.oldMarkerPos[id][1] + delta_lng;
-          this.markers[selectedMarker].lat = this.oldMarkerPos[id][0] + delta_lat;
-          this.markers[selectedMarker].lng = this.oldMarkerPos[id][1] + delta_lng;
+          var newLat = this.oldMarkerPos[id][0] + delta_lat;
+          var newLng = this.oldMarkerPos[id][1] + delta_lng;
+          var newLatLng = {lat: newLat, lng: newLng}
+          this.interpolate[selectedMarker][0] = newLat
+          this.interpolate[selectedMarker][1] = newLng
+          this.markers.splice(selectedMarker, 1, newLatLng);
         });
         this.interpolate.splice();
       }
@@ -140,6 +142,9 @@ export default {
     saveMarkerPos(event) {
       if(this.mode == this.modes[3]) {
         var latlng = event.target.getLatLng();
+        console.log(this.selectedMarkers)
+        console.log(event.target.getLatLng())
+        console.log(event.target)
         
         if(this.selectedMarkers.includes(latlng)) {
           this.oldMarkerPos = [];
@@ -220,6 +225,8 @@ export default {
       map.on(window.L.Draw.Event.CREATED, (e) => {
         var layer = e.layer;
         var type = e.layerType;
+        this.selectedMarkers = [];
+        this.selectedMarkersId = [];
 
         if(type === 'rectangle') {
           this.markers.forEach((dummy, id) => {
