@@ -21,7 +21,7 @@
         :draggable="draggable" 
         :lat-lng="marker"
         :icon="icon"
-        @click="deleteMarker(index)" 
+        @click="deleteMarker($event, index)" 
         @drag="updatePath($event, index)"
         @dragstart="saveMarkerPos"
         @dragend="updateLast($event, index)">
@@ -96,7 +96,7 @@ export default {
         this.mode = this.modes[0];
       }
     },
-    deleteMarker(index) {
+    deleteMarker(event, index) {
       if(this.mode == this.modes[1]) {
         this.markers.splice(index, 1);
         this.interpolate.splice(index, 1);
@@ -172,6 +172,16 @@ export default {
         }
 
         this.mode = this.modes[currentIndex];
+      }
+
+      else if(event.originalEvent.key == 'z') {
+        this.markers.pop();
+        this.interpolate.pop();
+      }
+
+      else if(event.originalEvent.key == 'x') {
+        this.markers = []
+        this.interpolate = []
       }
     },
     
