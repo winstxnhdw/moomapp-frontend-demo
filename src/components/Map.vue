@@ -28,7 +28,7 @@
       </l-marker>
 
       <l-control position="bottomleft" >
-        <button type="button" class="btn btn-dark buttons" data-toggle="button" @click="modeSwitch"> {{mode}} </button>
+        <button type="button" class="btn buttons" data-toggle="button" @click="modeSwitch"> {{mode}} </button>
       </l-control>
     
     </l-map>
@@ -253,7 +253,18 @@ export default {
 
   .buttons {
     margin-right: 5px;
+    border: none;
+    background-color: rgb(126, 95, 88);
     z-index: 1;
+    opacity: 0.8;
+    color: white;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  .buttons:hover {
+    opacity: 1;
   }
 
   #vignette {
@@ -262,7 +273,7 @@ export default {
     left: 0;
     width: 100vw;
     height: 100vh;
-    box-shadow: inset 0 0 1000px black;
+    box-shadow: inset 0 0 100px black;
     z-index: 1000;
     pointer-events: none;
 }

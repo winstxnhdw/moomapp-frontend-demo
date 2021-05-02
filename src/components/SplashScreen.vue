@@ -69,7 +69,7 @@
     position: fixed;
     height: 100vh;
     width: 100vw;
-    opacity: 0.85;
+    opacity: 0.80;
     background-color: black;
     margin: 0;
     top: 50%;
@@ -83,7 +83,6 @@
     top: 50%;
     left: 50%;
     margin-top: 80px;
-    opacity: 0.3;
     color: white;
     transform: translate(-50%, -50%);
     font-family: 'Roboto Mono', monospace;
