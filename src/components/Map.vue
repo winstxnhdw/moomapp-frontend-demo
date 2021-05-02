@@ -2,6 +2,7 @@
   <div id="map">
     <div id='vignette'> </div>
     <l-map ref="map" 
+      v-on:keydown="keyPress"
       :options="{attributionControl: false, zoomControl: false, zoomSnap: 0, wheelPxPerZoomLevel: 30, wheelDebounceTime: 0}" 
       :zoom="zoom" 
       :center="center"
@@ -67,6 +68,7 @@ export default {
         dashArray: "5, 10"
       },
       interpolate: [],
+      modes: ['Create Mode', 'Delete Mode', 'Drag Mode', 'Select Mode'],
       mode: 'Create Mode',
       buttonActive: false
     }
@@ -82,32 +84,32 @@ export default {
 
   methods: {
     modeSwitch() {
-      if(this.mode == 'Create Mode') {
-        this.mode = 'Delete Mode';
+      if(this.mode == this.modes[0]) {
+        this.mode = this.modes[1];
       }
 
-      else if(this.mode == 'Delete Mode') {
-        this.mode = 'Create Mode';
+      else if(this.mode == this.modes[1]) {
+        this.mode = this.modes[0];
       }
 
       else {
-        this.mode = 'Create Mode';
+        this.mode = this.modes[0];
       }
     },
     deleteMarker(index) {
-      if(this.mode == 'Delete Mode') {
+      if(this.mode == this.modes[1]) {
         this.markers.splice(index, 1);
         this.interpolate.splice(index, 1);
       }
     },
     createMarker(event) {
-      if(this.mode == 'Create Mode') {
+      if(this.mode == this.modes[0]) {
         this.markers.push(event.latlng);
         this.interpolate.push([event.latlng.lat, event.latlng.lng]);
       }
     },
     updatePath(event, index) {
-      if(this.mode == 'Select Mode') {
+      if(this.mode == this.modes[3]) {
         var delta_lat = event.latlng.lat - this.oldClickedMarkerPos[0];
         var delta_lng = event.latlng.lng - this.oldClickedMarkerPos[1];
         
@@ -122,21 +124,21 @@ export default {
       }
 
       else {
+        this.mode = this.modes[2]
         this.interpolate.splice(index, 1, [event.latlng.lat, event.latlng.lng]);
       }
     },
     updateLast(event, index) {
-      if(this.mode != 'Select Mode') {
+      if(this.mode != this.modes[3]) {
         var latlng = event.target.getLatLng();
         this.markers[index].lat = latlng.lat;
         this.markers[index].lng = latlng.lng;
       }
-
-      this.mode = 'Create Mode';
+      setTimeout(() => this.mode = this.modes[0]);
     },
 
     saveMarkerPos(event) {
-      if(this.mode == 'Select Mode') {
+      if(this.mode == this.modes[3]) {
         var latlng = event.target.getLatLng();
         
         if(this.selectedMarkers.includes(latlng)) {
@@ -152,8 +154,24 @@ export default {
         }
 
         else {
-          this.mode = 'Create mode';
+          this.mode = this.modes[0];
         }
+      }
+    },
+
+    keyPress(event) {
+      if(event.originalEvent.key == 'c') {
+        var currentIndex = this.modes.indexOf(this.mode)
+
+        if(currentIndex >= this.modes.length - 1) {
+          currentIndex = 0;
+        }
+
+        else {
+          currentIndex++;
+        }
+
+        this.mode = this.modes[currentIndex];
       }
     },
     
@@ -211,7 +229,7 @@ export default {
           });
         }
 
-        this.mode = 'Select Mode';
+        this.mode = this.modes[3];
         editableLayers.removeLayer(layer);
       });
 

@@ -27,7 +27,7 @@ export default {
   mounted() {
     setTimeout(() => {
       this.isLoading = false;
-    }, 10000);
+    }, 500);
   }
 }
 </script>
