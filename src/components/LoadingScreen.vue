@@ -7,8 +7,8 @@
 
 <script>
   export default {
-      name: "LoadingScreen",
-      props: ["isLoading"]
+    name: "LoadingScreen",
+    props: ["isLoading"]
   };
 </script>
 

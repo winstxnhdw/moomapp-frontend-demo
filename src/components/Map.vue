@@ -3,7 +3,7 @@
     <div id='vignette'> </div>
     <l-map ref="map" 
       v-on:keydown="keyPress"
-      :options="{attributionControl: false, zoomControl: false, zoomSnap: 0, wheelPxPerZoomLevel: 30, wheelDebounceTime: 0}" 
+      :options="{attributionControl: false, zoomControl: false, zoomSnap: 0, wheelPxPerZoomLevel: 30, wheelDebounceTime: 0, doubleClickZoom: false}" 
       :zoom="zoom" 
       :center="center"
       @click="createMarker">
@@ -243,8 +243,6 @@ export default {
 
 <style scoped>
   @import "~leaflet-draw/dist/leaflet.draw.css";
-  @import "~leaflet.markercluster/dist/MarkerCluster.css";
-  @import "~leaflet.markercluster/dist/MarkerCluster.Default.css";
 
   #map {
     position: 'relative';
