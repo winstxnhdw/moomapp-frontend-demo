@@ -59,6 +59,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     color: rgb(165, 165, 165);
+    margin-top: -30px;
     font-family: 'Krona One', sans-serif;
     font-size: 80px;
     letter-spacing: -8px;
@@ -82,7 +83,7 @@
     margin: 0;
     top: 50%;
     left: 50%;
-    margin-top: 80px;
+    margin-top: 50px;
     color: white;
     transform: translate(-50%, -50%);
     font-family: 'Roboto Mono', monospace;
