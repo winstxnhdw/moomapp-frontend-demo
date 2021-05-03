@@ -6,6 +6,8 @@ import './scss/main.scss';
 import Vue from 'vue'
 import App from './App.vue'
 
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+
 delete Icon.Default.prototype._getIconUrl;
 Icon.Default.mergeOptions({
   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
@@ -14,6 +16,9 @@ Icon.Default.mergeOptions({
 });
 
 Vue.config.productionTip = false
+
+Vue.use(BootstrapVue)
+Vue.use(IconsPlugin)
 
 new Vue({
   render: h => h(App),

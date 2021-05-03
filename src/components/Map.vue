@@ -39,6 +39,34 @@
       <l-control position="bottomleft" >
         <button type="button" class="btn buttons" data-toggle="button" @click="modeSwitch"> {{mode}} </button>
       </l-control>
+
+      <l-control position="bottomright" >
+        <b-button id="infobarBtn" v-b-toggle.sidebar-right>Info</b-button>
+        <b-sidebar id="sidebar-right" bg-variant="dark" class="infobar" text-variant="light" title="INSTRUCTIONS" right shadow>
+          <div class="px-3 py-2 sidebarText">
+            <h4>General Usage</h4>
+            <p>
+              - Click anywhere on the map to begin setting waypoints
+            </p>
+            <p>
+              - Hold click and drag on a waypoint to change the position of the waypoints
+            </p>
+            <p>
+              - Use the shape toolbars to multi-select and manipulate waypoints.
+            </p>
+            <h4>Keybinds</h4>
+            <p>
+              Press Z to delete the previous waypoint
+            </p>
+            <p>
+              Press X to delete all waypoints
+            </p>
+            <p>
+              Press C to cycle through modes
+            </p>
+          </div>
+        </b-sidebar>
+      </l-control>
     
     </l-map>
   </div>
@@ -264,7 +292,7 @@ export default {
             }
           });
         }
-        
+
         this.selectedMarkersId.forEach((dummy, id) => {
           var selectedMarker = this.selectedMarkersId[id]
           this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(0.5);
@@ -352,5 +380,14 @@ export default {
     pointer-events: none;
     font-family: 'Roboto Mono', monospace;
     color: white;
+  }
+
+  .infobar {
+    opacity: 0.7;
+  }
+
+  .sidebarText {
+    color: white;
+    font-family: 'Roboto Mono', monospace;
   }
 </style>
