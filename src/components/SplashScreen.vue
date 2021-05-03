@@ -50,8 +50,6 @@
 </script>
 
 <style scoped>
-  @import url("https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap");
-
   .logo {
     margin: 0;
     position: fixed;
@@ -97,5 +95,4 @@
     border: 1px solid #FFF;
     background-color: transparent;
   }
-
 </style>

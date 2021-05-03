@@ -1,21 +1,30 @@
 <template>
   <div id="app">
     <LoadingScreen :isLoading="isLoading" />
+
     <main v-if="!isLoading">
-      <Map />
-      <SplashScreen id="splash" />
+      <div v-if="isMobile()">
+        <Mobile />
+      </div>
+
+      <div v-else>
+        <Map />
+        <SplashScreen id="splash" />
+      </div>
     </main>
   </div>
 </template>
 
 <script>
 import LoadingScreen from './components/LoadingScreen'
+import Mobile from './components/Mobile'
 import Map from './components/Map'
 import SplashScreen from './components/SplashScreen'
 
 export default {
   name: 'App',
   components: {
+    Mobile,
     Map,
     LoadingScreen,
     SplashScreen
@@ -25,6 +34,18 @@ export default {
     return {
       isLoading: true
     };
+  },
+
+  methods: {
+    isMobile() {
+      if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        return true;
+      }
+
+      else {
+        return false;
+      }
+    }
   },
 
   mounted() {
