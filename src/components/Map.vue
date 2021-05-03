@@ -1,11 +1,20 @@
 <template>
   <div id="map">
-    <div id='vignette'> </div>
+
+    <div id="vignette"></div>
+
+      <svg id="zoomBar" viewBox="0 0 300 300">
+        <circle id="outerCircle" cx=150 cy=150 r=10 />
+        <circle id="innerCircle" cx=150 cy=150 r=9 :stroke-dashoffset="currentZoom"/>
+      </svg>
+
     <l-map ref="map" 
       v-on:keydown="keyPress"
       :options="{attributionControl: false, zoomControl: false, zoomSnap: 0, wheelPxPerZoomLevel: 30, wheelDebounceTime: 0, doubleClickZoom: false}" 
       :zoom="zoom" 
+      :minZoom="minZoom"
       :center="center"
+      @update:zoom="zoomUpdate"
       @click="createMarker">
 
       <l-tile-layer :url="url"></l-tile-layer>
@@ -44,7 +53,10 @@ export default {
   name: 'Map',
   data() {
     return {
+      minZoom: 13,
+      maxZoom: 18,
       zoom: 18,
+      currentZoom: 57,
       center: L.latLng(1.331142, 103.774454),
       url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       markers: [],
@@ -160,6 +172,10 @@ export default {
           this.mode = this.modes[0];
         }
       }
+    },
+
+    zoomUpdate(zoom) {
+      this.currentZoom = (57/(this.maxZoom - this.minZoom)) * (zoom - this.minZoom);
     },
 
     keyPress(event) {
@@ -291,5 +307,40 @@ export default {
     box-shadow: inset 0 0 100px black;
     z-index: 1000;
     pointer-events: none;
-}
+  }
+
+  #zoomBar {
+    left: 850px;
+    margin-top: -850px;
+    position: fixed;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  #outerCircle {
+    fill: none;
+    stroke: rgb(133, 129, 129);
+    stroke-width: 5px;
+    opacity: 0.5;
+  }
+
+  #innerCircle {
+    fill: none;
+    stroke: rgb(255, 255, 255);
+    stroke-width: 2px;
+    stroke-dasharray: 57;
+    animation: stroke-dashoffset 0.4s;
+    opacity: 1;
+  }
+
+  #zoomLabel {
+    left: 1800px;
+    margin-top: 87px;
+    font-size: 30px;
+    position: fixed;
+    z-index: 1000;
+    pointer-events: none;
+    font-family: 'Roboto Mono', monospace;
+    color: white;
+  }
 </style>

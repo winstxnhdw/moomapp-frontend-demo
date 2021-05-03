@@ -23,7 +23,7 @@
       }
     },
     
-    mounted: function() { 
+    mounted() { 
       gsap.fromTo('.logo', {
         autoAlpha: 0,
         filter: 'blur(10px)',
