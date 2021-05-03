@@ -132,7 +132,6 @@ export default {
     },
     updateLast(event, index) {
       if(this.mode != 'Select Mode') {
-        console.log('gaty')
         var latlng = event.target.getLatLng();
         this.markers[index].lat = latlng.lat;
         this.markers[index].lng = latlng.lng;
