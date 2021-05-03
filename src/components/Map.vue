@@ -23,7 +23,7 @@
         :icon="icon"
         @click="deleteMarker($event, index)" 
         @drag="updatePath($event, index)"
-        @dragstart="saveMarkerPos"
+        @dragstart="saveMarkerPos($event, index)"
         @dragend="updateLast($event, index)">
       </l-marker>
 
@@ -68,7 +68,7 @@ export default {
         dashArray: "5, 10"
       },
       interpolate: [],
-      modes: ['Create Mode', 'Delete Mode', 'Drag Mode', 'Select Mode'],
+      modes: ['Create Mode', 'Delete Mode'],
       mode: 'Create Mode',
       buttonActive: false
     }
@@ -109,7 +109,7 @@ export default {
       }
     },
     updatePath(event, index) {
-      if(this.mode == this.modes[3]) {
+      if(this.mode == 'Select Mode') {
         var delta_lat = event.latlng.lat - this.oldClickedMarkerPos[0];
         var delta_lng = event.latlng.lng - this.oldClickedMarkerPos[1];
         
@@ -122,31 +122,30 @@ export default {
           this.interpolate[selectedMarker][1] = newLng
           this.markers.splice(selectedMarker, 1, newLatLng);
         });
-        this.interpolate.splice();
+        this.interpolate.splice(); // Refreshes the polyline path
       }
 
       else {
-        this.mode = this.modes[2]
+        this.mode = 'Drag Mode'
         this.interpolate.splice(index, 1, [event.latlng.lat, event.latlng.lng]);
       }
     },
     updateLast(event, index) {
-      if(this.mode != this.modes[3]) {
+      if(this.mode != 'Select Mode') {
+        console.log('gaty')
         var latlng = event.target.getLatLng();
         this.markers[index].lat = latlng.lat;
         this.markers[index].lng = latlng.lng;
       }
+      
       setTimeout(() => this.mode = this.modes[0]);
     },
 
-    saveMarkerPos(event) {
-      if(this.mode == this.modes[3]) {
+    saveMarkerPos(event, index) {
+      if(this.mode == 'Select Mode') {
         var latlng = event.target.getLatLng();
-        console.log(this.selectedMarkers)
-        console.log(event.target.getLatLng())
-        console.log(event.target)
         
-        if(this.selectedMarkers.includes(latlng)) {
+        if(this.selectedMarkersId.includes(index)) {
           this.oldMarkerPos = [];
           this.oldClickedMarkerPos = [latlng.lat, latlng.lng];
         
@@ -246,7 +245,7 @@ export default {
           });
         }
 
-        this.mode = this.modes[3];
+        this.mode = 'Select Mode';
         editableLayers.removeLayer(layer);
       });
 
