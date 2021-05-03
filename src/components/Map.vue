@@ -10,7 +10,7 @@
 
     <l-map ref="map" 
       v-on:keydown="keyPress"
-      :options="{attributionControl: false, zoomControl: false, zoomSnap: 0, wheelPxPerZoomLevel: 30, wheelDebounceTime: 0, doubleClickZoom: false}" 
+      :options="{attributionControl: false, zoomControl: false, zoomSnap: 0, wheelPxPerZoomLevel: 100, wheelDebounceTime: 0, doubleClickZoom: false}" 
       :zoom="zoom" 
       :minZoom="minZoom"
       :center="center"
@@ -25,7 +25,7 @@
         :dashArray="polyline.dashArray"/>
 
       <l-marker
-        v-for="(marker, index) in markers" 
+        v-for="(marker, index) in markers"
         :key="index"
         :draggable="draggable" 
         :lat-lng="marker"
