@@ -124,6 +124,8 @@ export default {
 
   methods: {
     modeSwitch() {
+      this.resetHighlight();
+      
       if(this.mode == this.modes[0]) {
         this.mode = this.modes[1];
       }
@@ -177,10 +179,7 @@ export default {
         this.markers[index].lng = latlng.lng;
       }
 
-      this.selectedMarkersId.forEach((dummy, id) => {
-          var selectedMarker = this.selectedMarkersId[id]
-          this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(1);
-      });
+      this.resetHighlight();
 
       setTimeout(() => this.mode = this.modes[0]);
     },
@@ -213,6 +212,7 @@ export default {
 
     keyPress(event) {
       if(event.originalEvent.key == 'c') {
+        this.resetHighlight();
         var currentIndex = this.modes.indexOf(this.mode)
 
         if(currentIndex >= this.modes.length - 1) {
@@ -235,6 +235,13 @@ export default {
         this.markers = []
         this.interpolate = []
       }
+    },
+
+    resetHighlight() {
+      this.selectedMarkersId.forEach((dummy, id) => {
+          var selectedMarker = this.selectedMarkersId[id]
+          this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(1);
+      });
     },
     
     click: (e) => console.log("clusterclick", e),
