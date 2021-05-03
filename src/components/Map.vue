@@ -24,7 +24,7 @@
         :opacity="polyline.opacity" 
         :dashArray="polyline.dashArray"/>
 
-      <l-marker
+      <l-marker ref="myMarkers"
         v-for="(marker, index) in markers"
         :key="index"
         :draggable="draggable" 
@@ -148,7 +148,12 @@ export default {
         this.markers[index].lat = latlng.lat;
         this.markers[index].lng = latlng.lng;
       }
-      
+
+      this.selectedMarkersId.forEach((dummy, id) => {
+          var selectedMarker = this.selectedMarkersId[id]
+          this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(1);
+      });
+
       setTimeout(() => this.mode = this.modes[0]);
     },
 
@@ -259,6 +264,11 @@ export default {
             }
           });
         }
+        
+        this.selectedMarkersId.forEach((dummy, id) => {
+          var selectedMarker = this.selectedMarkersId[id]
+          this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(0.5);
+        });
 
         this.mode = 'Select Mode';
         editableLayers.removeLayer(layer);
