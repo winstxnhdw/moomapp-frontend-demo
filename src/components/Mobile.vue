@@ -1,7 +1,8 @@
 <template>
   <div class="background">
     <p id="notice">
-        Sorry! There is no mobile support for this website. This is website is only a demo intended to be viewed on a desktop.
+        Sorry! There is no mobile support for this website. This website demo is intended to be viewed on a desktop.<br>
+        Please switch to a desktop for a better experience.
     </p>
   </div>
 </template>
