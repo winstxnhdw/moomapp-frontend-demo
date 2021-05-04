@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!begin" class="background">
+  <div v-if="!begin" @keyup.enter="begin=!begin" tabindex="0" class="background" ref="splash">
     <p class="logo">MOOVITA</p>
     <button type="button" class="btn" id="startBtn" data-toggle="button" @click="begin=!begin">BEGIN</button>
   </div>
@@ -24,6 +24,10 @@
     },
     
     mounted() { 
+      this.$nextTick(() => {
+        this.$refs.splash.focus();
+      });
+
       gsap.fromTo('.logo', {
         autoAlpha: 0,
         filter: 'blur(10px)',
