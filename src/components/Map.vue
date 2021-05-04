@@ -41,7 +41,7 @@
       </l-control>
 
       <l-control position="bottomright" >
-        <b-button id="infobarBtn" v-b-toggle.sidebar-right>Info</b-button>
+        <b-button id="infobarBtn" class="buttons" v-b-toggle.sidebar-right>Info</b-button>
         <b-sidebar id="sidebar-right" bg-variant="dark" class="infobar" text-variant="light" title="INSTRUCTIONS" right shadow>
           <div class="px-3 py-2 sidebarText">
             <h4>General Usage</h4>
@@ -123,6 +123,7 @@ export default {
     },
 
   methods: {
+
     modeSwitch() {
       this.resetHighlight();
       
@@ -138,18 +139,21 @@ export default {
         this.mode = this.modes[0];
       }
     },
+
     deleteMarker(event, index) {
       if(this.mode == this.modes[1]) {
         this.markers.splice(index, 1);
         this.interpolate.splice(index, 1);
       }
     },
+
     createMarker(event) {
       if(this.mode == this.modes[0]) {
         this.markers.push(event.latlng);
         this.interpolate.push([event.latlng.lat, event.latlng.lng]);
       }
     },
+
     updatePath(event, index) {
       if(this.mode == 'Select Mode') {
         var delta_lat = event.latlng.lat - this.oldClickedMarkerPos[0];
@@ -172,6 +176,7 @@ export default {
         this.interpolate.splice(index, 1, [event.latlng.lat, event.latlng.lng]);
       }
     },
+
     updateLast(event, index) {
       if(this.mode != 'Select Mode') {
         var latlng = event.target.getLatLng();
@@ -252,6 +257,7 @@ export default {
     dynamicSize() {
       return [this.iconSize, this.iconSize * 1.15];
     },
+    
     dynamicAnchor() {
       return [this.iconSize / 2, this.iconSize * 1.15];
     }

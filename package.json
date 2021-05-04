@@ -13,6 +13,7 @@
     "bootstrap-vue": "^2.21.2",
     "core-js": "^3.6.5",
     "gsap": "^3.6.1",
+    "leaflet": "^1.7.1",
     "leaflet-draw": "^1.0.4",
     "vue": "^2.6.12",
     "vue-router": "^3.5.1",
