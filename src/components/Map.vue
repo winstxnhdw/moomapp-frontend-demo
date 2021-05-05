@@ -8,7 +8,7 @@
         <circle id="innerCircle" cx=150 cy=150 r=9 :stroke-dashoffset="currentZoom"/>
       </svg>
 
-    <l-map ref="map" 
+    <l-map ref="myMap" 
       v-on:keydown="keyPress"
       :options="{attributionControl: false, zoomControl: false, zoomSnap: 0, wheelPxPerZoomLevel: 100, wheelDebounceTime: 0, doubleClickZoom: false}" 
       :zoom="zoom" 
@@ -31,9 +31,9 @@
         :lat-lng="marker"
         :icon="icon"
         @click="deleteMarker($event, index)" 
-        @drag="updatePath($event, index)"
-        @dragstart="saveMarkerPos($event, index)"
-        @dragend="updateLast($event, index)">
+        @drag="dragEvent($event, index)"
+        @dragstart="dragStart($event, index)"
+        @dragend="dragEnd($event, index)">
       </l-marker>
 
       <l-control position="bottomleft" >
@@ -124,6 +124,15 @@ export default {
 
   methods: {
 
+    // General functions
+    resetHighlight() {
+      this.selectedMarkersId.forEach((dummy, id) => {
+          var selectedMarker = this.selectedMarkersId[id]
+          this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(1);
+      });
+    },
+
+    // Event handlers
     modeSwitch() {
       this.resetHighlight();
       
@@ -154,7 +163,31 @@ export default {
       }
     },
 
-    updatePath(event, index) {
+    // Saves marker's original position
+    dragStart(event, index) {
+      if(this.mode == 'Select Mode') {
+        var latlng = event.target.getLatLng();
+        
+        if(this.selectedMarkersId.includes(index)) {
+          this.oldMarkerPos = [];
+          this.oldClickedMarkerPos = [latlng.lat, latlng.lng];
+        
+          this.selectedMarkersId.forEach((dummy, id) => {
+            var selectedMarker = this.selectedMarkersId[id];
+            var oldLat = this.markers[selectedMarker].lat;
+            var oldLng = this.markers[selectedMarker].lng;
+            this.oldMarkerPos.push([oldLat, oldLng]);
+          }); 
+        }
+
+        else {
+          this.mode = this.modes[0];
+        }
+      }
+    },
+
+    // Dynamically updates the markers and path
+    dragEvent(event, index) {
       if(this.mode == 'Select Mode') {
         var delta_lat = event.latlng.lat - this.oldClickedMarkerPos[0];
         var delta_lng = event.latlng.lng - this.oldClickedMarkerPos[1];
@@ -177,7 +210,8 @@ export default {
       }
     },
 
-    updateLast(event, index) {
+    // Updates the marker's position after dragging (for single-marker dragging)
+    dragEnd(event, index) {
       if(this.mode != 'Select Mode') {
         var latlng = event.target.getLatLng();
         this.markers[index].lat = latlng.lat;
@@ -187,28 +221,6 @@ export default {
       this.resetHighlight();
 
       setTimeout(() => this.mode = this.modes[0]);
-    },
-
-    saveMarkerPos(event, index) {
-      if(this.mode == 'Select Mode') {
-        var latlng = event.target.getLatLng();
-        
-        if(this.selectedMarkersId.includes(index)) {
-          this.oldMarkerPos = [];
-          this.oldClickedMarkerPos = [latlng.lat, latlng.lng];
-        
-          this.selectedMarkersId.forEach((dummy, id) => {
-            var selectedMarker = this.selectedMarkersId[id];
-            var oldLat = this.markers[selectedMarker].lat;
-            var oldLng = this.markers[selectedMarker].lng;
-            this.oldMarkerPos.push([oldLat, oldLng]);
-          }); 
-        }
-
-        else {
-          this.mode = this.modes[0];
-        }
-      }
     },
 
     zoomUpdate(zoom) {
@@ -240,17 +252,7 @@ export default {
         this.markers = []
         this.interpolate = []
       }
-    },
-
-    resetHighlight() {
-      this.selectedMarkersId.forEach((dummy, id) => {
-          var selectedMarker = this.selectedMarkersId[id]
-          this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(1);
-      });
-    },
-    
-    click: (e) => console.log("clusterclick", e),
-    ready: (e) => console.log('ready', e)
+    }
   },
   
   computed: {
@@ -265,7 +267,7 @@ export default {
 
   mounted() {
     this.$nextTick(() => {
-      const map = this.$refs.map.mapObject;
+      const map = this.$refs.myMap.mapObject;
       const drawControl = new window.L.Control.Draw({
         position: 'topleft',
         draw: {
@@ -282,6 +284,7 @@ export default {
 
       const editableLayers = new window.L.FeatureGroup().addTo(map);
 
+      // Finds selected markers
       map.on(window.L.Draw.Event.CREATED, (e) => {
         var layer = e.layer;
         var type = e.layerType;
@@ -306,6 +309,7 @@ export default {
           });
         }
 
+        // Visualise selected markers
         this.selectedMarkersId.forEach((dummy, id) => {
           var selectedMarker = this.selectedMarkersId[id]
           this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(0.5);
@@ -315,6 +319,7 @@ export default {
         editableLayers.removeLayer(layer);
       });
 
+      // Prevents the user from performing irrelevant actions
       map.on('draw:toolbaropened', () => {
         this.mode = 'Draw Mode';
       });
