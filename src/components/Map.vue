@@ -11,13 +11,18 @@
     <l-map ref="myMap" 
       v-on:keydown="keyPress"
       :options="{attributionControl: false, zoomControl: false, zoomSnap: 0, wheelPxPerZoomLevel: 100, wheelDebounceTime: 0, doubleClickZoom: false}" 
-      :zoom="zoom" 
-      :minZoom="minZoom"
+      :crs="crs"
+      :zoom="zoom"
       :center="center"
+      :minZoom="minZoom"
+      :maxZoom="maxZoom"
+      :maxBounds="bounds"
+      :maxBoundsViscosity="1.0"
       @update:zoom="zoomUpdate"
       @click="createMarker">
 
-      <l-tile-layer :url="url"></l-tile-layer>
+      <l-image-overlay :url="url" :bounds="bounds"/>
+
       <l-polyline 
         :lat-lngs="interpolate" 
         :color="polyline.color" 
@@ -74,61 +79,67 @@
 
 <script>
 import L from 'leaflet';
-import { LMap, LTileLayer, LMarker, LControl, LPolyline} from 'vue2-leaflet';
+import { LMap, LMarker, LControl, LPolyline, LImageOverlay} from 'vue2-leaflet';
 import 'leaflet-draw';
 
 export default {
   name: 'Map',
   data() {
     return {
-      minZoom: 13,
-      maxZoom: 18,
-      zoom: 18,
-      currentZoom: 57,
-      center: L.latLng(1.331142, 103.774454),
-      url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       markers: [],
       selectedMarkersId: [],
       selectedMarkers: [],
+      interpolate: [],
       oldMarkerPos: [],
       oldClickedMarkerPos: null,
+      mode: 'Create Mode',
+
+      minZoom: 0,
+      maxZoom: 4,
+      zoom: 0,
+      currentZoom: 57,
       draggable: true,
+      crs: L.CRS.Simple,
+      url: require('/src/assets/ngeeann_map.png'),
+      bounds: [
+        [-383, -408.65], 
+        [393, 446.15]
+      ],
+
       icon: L.icon({
         iconUrl: require('/src/assets/marker.svg'),
         iconSize: [20, 20],
         iconAnchor: [10, 10]
       }),
-      clusterOptions: {
-        disableClusteringAtZoom: 18,
-        chunkedLoading: true
-      },
+
+      icon_selected: L.icon({
+        iconUrl: require('/src/assets/marker_selected.svg'),
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      }),
+
       polyline: {
-        color: '#F04759',
+        color: '#FFF',
         opacity: 0.6,
         dashArray: "5, 10"
-      },
-      interpolate: [],
-      modes: ['Create Mode', 'Delete Mode'],
-      mode: 'Create Mode',
-      buttonActive: false
+      }
     }
   },
 
   components: {
     LMap,
-    LTileLayer,
     LMarker,
     LControl,
-    LPolyline
+    LPolyline,
+    LImageOverlay
     },
 
   methods: {
-
     // General functions
     resetHighlight() {
       this.selectedMarkersId.forEach((dummy, id) => {
           var selectedMarker = this.selectedMarkersId[id]
-          this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(1);
+          this.$refs.myMarkers[selectedMarker].mapObject.setIcon(this.icon);
       });
     },
 
@@ -136,28 +147,28 @@ export default {
     modeSwitch() {
       this.resetHighlight();
       
-      if(this.mode == this.modes[0]) {
-        this.mode = this.modes[1];
+      if(this.mode == 'Create Mode') {
+        this.mode = 'Delete Mode';
       }
 
-      else if(this.mode == this.modes[1]) {
-        this.mode = this.modes[0];
+      else if(this.mode == 'Delete Mode') {
+        this.mode = 'Create Mode';
       }
 
       else {
-        this.mode = this.modes[0];
+        this.mode = 'Create Mode';
       }
     },
 
     deleteMarker(event, index) {
-      if(this.mode == this.modes[1]) {
+      if(this.mode == 'Delete Mode') {
         this.markers.splice(index, 1);
         this.interpolate.splice(index, 1);
       }
     },
 
     createMarker(event) {
-      if(this.mode == this.modes[0]) {
+      if(this.mode == 'Create Mode') {
         this.markers.push(event.latlng);
         this.interpolate.push([event.latlng.lat, event.latlng.lng]);
       }
@@ -181,7 +192,7 @@ export default {
         }
 
         else {
-          this.mode = this.modes[0];
+          this.mode = 'Create Mode';
         }
       }
     },
@@ -220,7 +231,7 @@ export default {
 
       this.resetHighlight();
 
-      setTimeout(() => this.mode = this.modes[0]);
+      setTimeout(() => this.mode = 'Create Mode');
     },
 
     zoomUpdate(zoom) {
@@ -229,18 +240,7 @@ export default {
 
     keyPress(event) {
       if(event.originalEvent.key == 'c') {
-        this.resetHighlight();
-        var currentIndex = this.modes.indexOf(this.mode)
-
-        if(currentIndex >= this.modes.length - 1) {
-          currentIndex = 0;
-        }
-
-        else {
-          currentIndex++;
-        }
-
-        this.mode = this.modes[currentIndex];
+        this.modeSwitch()
       }
 
       else if(event.originalEvent.key == 'z') {
@@ -312,7 +312,7 @@ export default {
         // Visualise selected markers
         this.selectedMarkersId.forEach((dummy, id) => {
           var selectedMarker = this.selectedMarkersId[id]
-          this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(0.5);
+          this.$refs.myMarkers[selectedMarker].mapObject.setIcon(this.icon_selected);
         });
 
         this.mode = 'Select Mode';
@@ -331,73 +331,24 @@ export default {
 <style scoped>
   @import "~leaflet-draw/dist/leaflet.draw.css";
 
-  #map {
-    position: 'relative';
-    height: 100vh;
-    width: 100vw;
-    z-index: -1;
+  .leaflet-container {
+    background-color: black;
   }
 
   .buttons {
-    margin-right: 5px;
     border: none;
     background-color: rgb(126, 95, 88);
-    z-index: 1;
-    opacity: 0.8;
+    border-radius: 10px;
     color: white;
     font-family: 'Roboto Mono', monospace;
     font-size: 15px;
-    border-radius: 10px;
+    margin-right: 5px;
+    opacity: 0.8;
+    z-index: 1;
   }
 
   .buttons:hover {
     opacity: 1;
-  }
-
-  #vignette {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    box-shadow: inset 0 0 100px black;
-    z-index: 1000;
-    pointer-events: none;
-  }
-
-  #zoomBar {
-    left: 850px;
-    margin-top: -850px;
-    position: fixed;
-    z-index: 1000;
-    pointer-events: none;
-  }
-
-  #outerCircle {
-    fill: none;
-    stroke: rgb(133, 129, 129);
-    stroke-width: 5px;
-    opacity: 0.5;
-  }
-
-  #innerCircle {
-    fill: none;
-    stroke: rgb(255, 255, 255);
-    stroke-width: 2px;
-    stroke-dasharray: 57;
-    animation: stroke-dashoffset 0.4s;
-    opacity: 1;
-  }
-
-  #zoomLabel {
-    left: 1800px;
-    margin-top: 87px;
-    font-size: 30px;
-    position: fixed;
-    z-index: 1000;
-    pointer-events: none;
-    font-family: 'Roboto Mono', monospace;
-    color: white;
   }
 
   .infobar {
@@ -407,5 +358,47 @@ export default {
   .sidebarText {
     color: white;
     font-family: 'Roboto Mono', monospace;
+  }
+
+  #map {
+    height: 100vh;
+    position: 'relative';
+    width: 100vw;
+    z-index: -1;
+  }
+
+  #vignette {
+    box-shadow: inset 0 0 100px black;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    position: fixed;
+    pointer-events: none;
+    width: 100vw;
+    z-index: 1000;
+  }
+
+  #zoomBar {
+    left: 850px;
+    margin-top: -850px;
+    position: fixed;
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  #outerCircle {
+    fill: none;
+    opacity: 0.5;
+    stroke: rgb(133, 129, 129);
+    stroke-width: 5px;
+  }
+
+  #innerCircle {
+    animation: stroke-dashoffset 0.4s;
+    fill: none;
+    opacity: 1;
+    stroke: rgb(255, 255, 255);
+    stroke-width: 2px;
+    stroke-dasharray: 57;
   }
 </style>
