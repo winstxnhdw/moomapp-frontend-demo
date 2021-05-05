@@ -3,10 +3,12 @@
 
     <div id="vignette"></div>
 
-      <svg id="zoomBar" viewBox="0 0 300 300">
-        <circle id="outerCircle" cx=150 cy=150 r=10 />
-        <circle id="innerCircle" cx=150 cy=150 r=9 :stroke-dashoffset="currentZoom"/>
-      </svg>
+    <svg id="zoomBar" viewBox="0 0 300 300">
+      <circle id="outerCircle" cx=150 cy=150 r=10 />
+      <circle id="innerCircle" cx=150 cy=150 r=9 :stroke-dashoffset="currentZoom"/>
+    </svg>
+
+    <vue-csv-import v-model="csv" :map-fields="{x: 'X', y: 'Y'}"></vue-csv-import>
 
     <l-map ref="myMap" 
       v-on:keydown="keyPress"
@@ -78,14 +80,16 @@
 </template>
 
 <script>
-import L from 'leaflet';
+import VueCsvImport from 'vue-csv-import';
 import { LMap, LMarker, LControl, LPolyline, LImageOverlay} from 'vue2-leaflet';
+import L from 'leaflet';
 import 'leaflet-draw';
 
 export default {
   name: 'Map',
   data() {
     return {
+      csv: null,
       markers: [],
       selectedMarkersId: [],
       selectedMarkers: [],
@@ -97,7 +101,7 @@ export default {
       minZoom: 0,
       maxZoom: 4,
       zoom: 0,
-      currentZoom: 57,
+      currentZoom: 0,
       draggable: true,
       crs: L.CRS.Simple,
       url: require('/src/assets/ngeeann_map.png'),
@@ -131,7 +135,8 @@ export default {
     LMarker,
     LControl,
     LPolyline,
-    LImageOverlay
+    LImageOverlay,
+    VueCsvImport
     },
 
   methods: {
@@ -337,7 +342,7 @@ export default {
 
   .buttons {
     border: none;
-    background-color: rgb(126, 95, 88);
+    background-color: rgb(0, 0, 0);
     border-radius: 10px;
     color: white;
     font-family: 'Roboto Mono', monospace;
@@ -388,7 +393,7 @@ export default {
 
   #outerCircle {
     fill: none;
-    opacity: 0.5;
+    opacity: 0.4;
     stroke: rgb(133, 129, 129);
     stroke-width: 5px;
   }

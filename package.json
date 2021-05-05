@@ -16,13 +16,14 @@
     "leaflet": "^1.7.1",
     "leaflet-draw": "^1.0.4",
     "vue": "^2.6.12",
+    "vue-csv-import": "^4.0.6",
     "vue-router": "^3.5.1",
     "vue2-leaflet": "^2.7.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
+    "@vue/cli-service": "^4.1.1",
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
