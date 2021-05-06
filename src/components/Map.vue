@@ -8,7 +8,7 @@
       <circle id="innerCircle" cx=150 cy=150 r=9 :stroke-dashoffset="currentZoom"/>
     </svg>
 
-    <vue-csv-import v-model="csv" :map-fields="{x: 'X', y: 'Y'}"></vue-csv-import>
+    <input class="input" type="file" @change="importCSV">
 
     <l-map ref="myMap" 
       v-on:keydown="keyPress"
@@ -42,13 +42,22 @@
         @dragend="dragEnd($event, index)">
       </l-marker>
 
+      <l-marker
+        v-for="(marker, index) in optiMarkers"
+        :key="index"
+        :draggable="draggable" 
+        :lat-lng="marker"
+        :icon="icon">
+      </l-marker>
+
       <l-control position="bottomleft" >
         <button type="button" class="btn buttons" data-toggle="button" @click="modeSwitch"> {{mode}} </button>
+        <button type="button" class="btn buttons" data-toggle="button" @click="getOptimised">Optimize</button>
       </l-control>
 
       <l-control position="bottomright" >
         <b-button id="infobarBtn" class="buttons" v-b-toggle.sidebar-right>Info</b-button>
-        <b-sidebar id="sidebar-right" bg-variant="dark" class="infobar" text-variant="light" title="INSTRUCTIONS" right shadow>
+        <b-sidebar id="sidebar-right" bg-letiant="dark" class="infobar" text-letiant="light" title="INSTRUCTIONS" right shadow>
           <div class="px-3 py-2 sidebarText">
             <h4>General Usage</h4>
             <p>
@@ -79,7 +88,7 @@
 </template>
 
 <script>
-import VueCsvImport from 'vue-csv-import';
+import { getAPI } from '@/axios';
 import { LMap, LMarker, LControl, LPolyline, LImageOverlay} from 'vue2-leaflet';
 import L from 'leaflet';
 import 'leaflet-draw';
@@ -90,6 +99,7 @@ export default {
     return {
       csv: null,
       markers: [],
+      optiMarkers: [],
       selectedMarkersId: [],
       selectedMarkers: [],
       interpolate: [],
@@ -134,15 +144,14 @@ export default {
     LMarker,
     LControl,
     LPolyline,
-    LImageOverlay,
-    VueCsvImport
+    LImageOverlay
     },
 
   methods: {
     // General functions
     resetHighlight() {
       this.selectedMarkersId.forEach((dummy, id) => {
-          var selectedMarker = this.selectedMarkersId[id]
+          let selectedMarker = this.selectedMarkersId[id]
           this.$refs.myMarkers[selectedMarker].mapObject.setIcon(this.icon);
       });
     },
@@ -150,7 +159,7 @@ export default {
     // Event handlers
     modeSwitch() {
       this.resetHighlight();
-      
+      console.log(this.csv)
       if(this.mode == 'Create Mode') {
         this.mode = 'Delete Mode';
       }
@@ -181,16 +190,16 @@ export default {
     // Saves marker's original position
     dragStart(event, index) {
       if(this.mode == 'Select Mode') {
-        var latlng = event.target.getLatLng();
+        let latlng = event.target.getLatLng();
         
         if(this.selectedMarkersId.includes(index)) {
           this.oldMarkerPos = [];
           this.oldClickedMarkerPos = [latlng.lat, latlng.lng];
         
           this.selectedMarkersId.forEach((dummy, id) => {
-            var selectedMarker = this.selectedMarkersId[id];
-            var oldLat = this.markers[selectedMarker].lat;
-            var oldLng = this.markers[selectedMarker].lng;
+            let selectedMarker = this.selectedMarkersId[id];
+            let oldLat = this.markers[selectedMarker].lat;
+            let oldLng = this.markers[selectedMarker].lng;
             this.oldMarkerPos.push([oldLat, oldLng]);
           }); 
         }
@@ -204,14 +213,14 @@ export default {
     // Dynamically updates the markers and path
     dragEvent(event, index) {
       if(this.mode == 'Select Mode') {
-        var delta_lat = event.latlng.lat - this.oldClickedMarkerPos[0];
-        var delta_lng = event.latlng.lng - this.oldClickedMarkerPos[1];
+        let delta_lat = event.latlng.lat - this.oldClickedMarkerPos[0];
+        let delta_lng = event.latlng.lng - this.oldClickedMarkerPos[1];
         
         this.selectedMarkersId.forEach((dummy, id) => {
-          var selectedMarker = this.selectedMarkersId[id];
-          var newLat = this.oldMarkerPos[id][0] + delta_lat;
-          var newLng = this.oldMarkerPos[id][1] + delta_lng;
-          var newLatLng = {lat: newLat, lng: newLng}
+          let selectedMarker = this.selectedMarkersId[id];
+          let newLat = this.oldMarkerPos[id][0] + delta_lat;
+          let newLng = this.oldMarkerPos[id][1] + delta_lng;
+          let newLatLng = {lat: newLat, lng: newLng}
           this.interpolate[selectedMarker][0] = newLat
           this.interpolate[selectedMarker][1] = newLng
           this.markers.splice(selectedMarker, 1, newLatLng);
@@ -228,7 +237,7 @@ export default {
     // Updates the marker's position after dragging (for single-marker dragging)
     dragEnd(event, index) {
       if(this.mode != 'Select Mode') {
-        var latlng = event.target.getLatLng();
+        let latlng = event.target.getLatLng();
         this.markers[index].lat = latlng.lat;
         this.markers[index].lng = latlng.lng;
       }
@@ -256,6 +265,52 @@ export default {
         this.markers = []
         this.interpolate = []
       }
+    },
+
+    importCSV(event) {
+      // x: longitude, y: lattitude
+      const self = this;
+  
+      this.$papa.parse(event.target.files[0], {header: true, complete: function(results) {
+        let data = results.data;
+        data.forEach((dummy, id) => {
+          let newLat = data[id].y;
+          let newLng = data[id].x;
+          let newLatLng = {lat: newLat, lng: newLng};
+          self.markers.push(newLatLng);
+          self.interpolate.push([newLat, newLng]);
+        });
+      }});
+    },
+    
+    getOptimised() {
+      let x = [];
+      let y = [];
+
+      this.selectedMarkers.forEach((dummy, id) => {
+        x.push(this.selectedMarkers[id].lng);
+        y.push(this.selectedMarkers[id].lat);
+      });
+
+      getAPI
+        .get("/optimise", {
+          params: {
+            x: x,
+            y: y
+          }
+        })
+        .then(response => {
+          this.optiMarkers = [];
+          this.selectedMarkers.forEach((dummy, id) => {
+          let newLat = response.data[1][id];
+          let newLng = response.data[0][id];
+          let newLatLng = {lat: newLat, lng: newLng};
+          this.optiMarkers.push(newLatLng);
+          })
+        })
+        .catch(error => {
+          console.log(error);
+        });
     }
   },
   
@@ -290,8 +345,8 @@ export default {
 
       // Finds selected markers
       map.on(window.L.Draw.Event.CREATED, (e) => {
-        var layer = e.layer;
-        var type = e.layerType;
+        let layer = e.layer;
+        let type = e.layerType;
         this.selectedMarkers = [];
         this.selectedMarkersId = [];
 
@@ -315,7 +370,7 @@ export default {
 
         // Visualise selected markers
         this.selectedMarkersId.forEach((dummy, id) => {
-          var selectedMarker = this.selectedMarkersId[id]
+          let selectedMarker = this.selectedMarkersId[id]
           this.$refs.myMarkers[selectedMarker].mapObject.setIcon(this.icon_selected);
         });
 
@@ -383,8 +438,8 @@ export default {
   }
 
   #zoomBar {
-    left: 850px;
-    margin-top: -850px;
+    left: 45%;
+    margin-top: -45%;
     position: fixed;
     pointer-events: none;
     z-index: 1000;
@@ -404,5 +459,10 @@ export default {
     stroke: rgb(255, 255, 255);
     stroke-width: 2px;
     stroke-dasharray: 57;
+  }
+
+  .input {
+    position: fixed;
+    z-index: 1000;
   }
 </style>
