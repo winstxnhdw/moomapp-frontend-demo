@@ -53,6 +53,7 @@
       <l-control position="bottomleft" >
         <button type="button" class="btn buttons" data-toggle="button" @click="modeSwitch"> {{mode}} </button>
         <button type="button" class="btn buttons" data-toggle="button" @click="getOptimised">Optimize</button>
+        <button type="button" class="btn buttons" data-toggle="button" @click="exportOptimised">Export</button>
       </l-control>
 
       <l-control position="bottomright" >
@@ -159,7 +160,6 @@ export default {
     // Event handlers
     modeSwitch() {
       this.resetHighlight();
-      console.log(this.csv)
       if(this.mode == 'Create Mode') {
         this.mode = 'Delete Mode';
       }
@@ -302,15 +302,30 @@ export default {
         .then(response => {
           this.optiMarkers = [];
           this.selectedMarkers.forEach((dummy, id) => {
-          let newLat = response.data[1][id];
-          let newLng = response.data[0][id];
-          let newLatLng = {lat: newLat, lng: newLng};
-          this.optiMarkers.push(newLatLng);
-          })
+            let newLat = response.data[1][id];
+            let newLng = response.data[0][id];
+            let newLatLng = {lat: newLat, lng: newLng};
+            this.optiMarkers.push(newLatLng);
+          });
         })
         .catch(error => {
           console.log(error);
         });
+    },
+
+    exportOptimised() {
+      let data = {}
+      let dataJSON = [{}]
+      this.optiMarkers.forEach((dummy, id) => {
+        let x = this.optiMarkers[id].lng
+        let y = this.optiMarkers[id].lat
+        data = {x: x, y: y}
+        dataJSON.push(data)
+      });
+      console.log(JSON.stringify(dataJSON))
+      let dataCSV = this.$papa.unparse(dataJSON);
+      this.$papa.download(dataCSV, 'solution')
+      console.log(dataCSV)
     }
   },
   
