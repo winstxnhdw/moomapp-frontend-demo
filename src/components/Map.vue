@@ -15,7 +15,6 @@
       :options="{attributionControl: false, zoomControl: false, zoomSnap: 0, wheelPxPerZoomLevel: 100, wheelDebounceTime: 0, doubleClickZoom: false}" 
       :crs="crs"
       :zoom="zoom"
-      :center="center"
       :minZoom="minZoom"
       :maxZoom="maxZoom"
       :maxBounds="bounds"
