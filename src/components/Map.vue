@@ -257,13 +257,26 @@ export default {
       }
 
       else if(event.originalEvent.key == 'z') {
+        this.resetHighlight()
         this.markers.pop();
         this.interpolate.pop();
       }
 
       else if(event.originalEvent.key == 'x') {
-        this.markers = []
-        this.interpolate = []
+        if(this.mode != 'Select Mode') {
+          this.markers = []
+          this.interpolate = []
+        }
+
+        else {
+          this.resetHighlight()
+          let indices = this.selectedMarkersId.reverse()
+
+          indices.forEach((dummy, id) => {
+            this.interpolate.splice(indices[id], 1);
+            this.markers.splice(indices[id], 1);
+          });
+        }
       }
     },
 
@@ -316,7 +329,7 @@ export default {
     exportOptimised() {
       let data = {}
       let dataJSON = []
-      
+
       this.optiMarkers.forEach((dummy, id) => {
         let x = this.optiMarkers[id].lng
         let y = this.optiMarkers[id].lat
@@ -376,7 +389,7 @@ export default {
 
         else if(type === 'circle') {
           this.markers.forEach((dummy, id) => {
-            if(layer.getLatLng().distanceTo(this.markers[id]) < layer.getRadius()) {
+            if(map.distance(layer.getLatLng(), this.markers[id]) < layer.getRadius()) {
               this.selectedMarkersId.push(id);
               this.selectedMarkers.push(this.markers[id])
             }
