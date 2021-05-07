@@ -43,8 +43,8 @@
       </l-marker>
 
       <l-marker
-        v-for="(marker, index) in optiMarkers"
-        :key="index"
+        v-for="(marker, id) in optiMarkers"
+        :key="id"
         :draggable="draggable" 
         :lat-lng="marker"
         :icon="icon">
@@ -315,17 +315,17 @@ export default {
 
     exportOptimised() {
       let data = {}
-      let dataJSON = [{}]
+      let dataJSON = []
+      
       this.optiMarkers.forEach((dummy, id) => {
         let x = this.optiMarkers[id].lng
         let y = this.optiMarkers[id].lat
         data = {x: x, y: y}
         dataJSON.push(data)
       });
-      console.log(JSON.stringify(dataJSON))
+
       let dataCSV = this.$papa.unparse(dataJSON);
       this.$papa.download(dataCSV, 'solution')
-      console.log(dataCSV)
     }
   },
   
