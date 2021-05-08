@@ -42,18 +42,18 @@
         @dragend="dragEnd($event, index)">
       </l-marker>
 
-      <l-marker
+      <!-- <l-marker
         v-for="(marker, id) in optiMarkers"
         :key="id"
         :draggable="draggable" 
         :lat-lng="marker"
         :icon="icon">
-      </l-marker>
+      </l-marker> -->
 
       <l-control position="bottomleft" >
         <button type="button" class="btn buttons" data-toggle="button" @click="modeSwitch"> {{mode}} </button>
-        <button type="button" class="btn buttons" data-toggle="button" @click="getOptimised">Optimize</button>
-        <button type="button" class="btn buttons" data-toggle="button" @click="exportOptimised">Export</button>
+        <button type="button" class="btn buttons" data-toggle="button" @click="optimiseWaypoints">Optimize</button>
+        <button type="button" class="btn buttons" data-toggle="button" @click="exportWaypoints">Export</button>
       </l-control>
 
       <l-control position="bottomright" >
@@ -152,8 +152,9 @@ export default {
     // General functions
     resetHighlight() {
       this.selectedMarkersId.forEach((dummy, id) => {
-          let selectedMarker = this.selectedMarkersId[id]
-          this.$refs.myMarkers[selectedMarker].mapObject.setIcon(this.icon);
+        let selectedMarker = this.selectedMarkersId[id]
+        this.$refs.myMarkers[selectedMarker].mapObject.setIcon(this.icon);
+        this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(1);
       });
     },
 
@@ -251,35 +252,6 @@ export default {
       this.currentZoom = (57/(this.maxZoom - this.minZoom)) * (zoom - this.minZoom);
     },
 
-    keyPress(event) {
-      if(event.originalEvent.key == 'c') {
-        this.modeSwitch()
-      }
-
-      else if(event.originalEvent.key == 'z') {
-        this.resetHighlight()
-        this.markers.pop();
-        this.interpolate.pop();
-      }
-
-      else if(event.originalEvent.key == 'x') {
-        if(this.mode != 'Select Mode') {
-          this.markers = []
-          this.interpolate = []
-        }
-
-        else {
-          this.resetHighlight()
-          let indices = this.selectedMarkersId.reverse()
-
-          indices.forEach((dummy, id) => {
-            this.interpolate.splice(indices[id], 1);
-            this.markers.splice(indices[id], 1);
-          });
-        }
-      }
-    },
-
     importCSV(event) {
       // x: longitude, y: lattitude
       const self = this;
@@ -287,8 +259,8 @@ export default {
       this.$papa.parse(event.target.files[0], {header: true, complete: function(results) {
         let data = results.data;
         data.forEach((dummy, id) => {
-          let newLat = data[id].y;
-          let newLng = data[id].x;
+          let newLat = parseFloat(data[id].y);
+          let newLng = parseFloat(data[id].x);
           let newLatLng = {lat: newLat, lng: newLng};
           self.markers.push(newLatLng);
           self.interpolate.push([newLat, newLng]);
@@ -296,7 +268,7 @@ export default {
       }});
     },
     
-    getOptimised() {
+    optimiseWaypoints() {
       let x = [];
       let y = [];
 
@@ -326,19 +298,50 @@ export default {
         });
     },
 
-    exportOptimised() {
-      let data = {}
-      let dataJSON = []
+    exportWaypoints() {
+      if(this.optiMarkers.length) {
+        let data = {}
+        let dataJSON = []
 
-      this.optiMarkers.forEach((dummy, id) => {
-        let x = this.optiMarkers[id].lng
-        let y = this.optiMarkers[id].lat
-        data = {x: x, y: y}
-        dataJSON.push(data)
-      });
+        this.optiMarkers.forEach((dummy, id) => {
+          let x = this.optiMarkers[id].lng
+          let y = this.optiMarkers[id].lat
+          data = {x: x, y: y}
+          dataJSON.push(data)
+        });
 
-      let dataCSV = this.$papa.unparse(dataJSON);
-      this.$papa.download(dataCSV, 'solution')
+        let dataCSV = this.$papa.unparse(dataJSON);
+        this.$papa.download(dataCSV, 'solution')
+      }
+    },
+
+    keyPress(event) {
+      if(event.originalEvent.key == 'c') {
+        this.modeSwitch()
+      }
+
+      else if(event.originalEvent.key == 'z') {
+        this.resetHighlight()
+        this.markers.pop();
+        this.interpolate.pop();
+      }
+
+      else if(event.originalEvent.key == 'x') {
+        if(this.mode != 'Select Mode') {
+          this.markers = []
+          this.interpolate = []
+        }
+
+        else {
+          this.resetHighlight()
+          let indices = this.selectedMarkersId.reverse()
+
+          indices.forEach((dummy, id) => {
+            this.interpolate.splice(indices[id], 1);
+            this.markers.splice(indices[id], 1);
+          });
+        }
+      }
     }
   },
   
@@ -400,6 +403,7 @@ export default {
         this.selectedMarkersId.forEach((dummy, id) => {
           let selectedMarker = this.selectedMarkersId[id]
           this.$refs.myMarkers[selectedMarker].mapObject.setIcon(this.icon_selected);
+          this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(0.7);
         });
 
         this.mode = 'Select Mode';
