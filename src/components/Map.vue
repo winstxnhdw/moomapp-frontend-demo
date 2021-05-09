@@ -96,37 +96,6 @@
           Export
         </button>
       </l-control>
-
-      <l-control position="bottomright">
-        <b-button id="infobarBtn" class="buttons" v-b-toggle.sidebar-right>
-          Info
-        </b-button>
-        <b-sidebar
-          id="sidebar-right"
-          bg-letiant="dark"
-          class="infobar"
-          text-letiant="light"
-          title="INSTRUCTIONS"
-          right
-          shadow
-        >
-          <div class="px-3 py-2 sidebarText">
-            <h4>General Usage</h4>
-            <p>- Click anywhere on the map to begin setting waypoints</p>
-            <p>
-              - Hold click and drag on a waypoint to change the position of the
-              waypoints
-            </p>
-            <p>
-              - Use the shape toolbars to multi-select and manipulate waypoints.
-            </p>
-            <h4>Keybinds</h4>
-            <p>Press Z to delete the previous waypoint</p>
-            <p>Press X to delete all waypoints</p>
-            <p>Press C to cycle through modes</p>
-          </div>
-        </b-sidebar>
-      </l-control>
     </l-map>
   </div>
 </template>
@@ -420,6 +389,17 @@ export default {
   },
 
   mounted() {
+    gsap.fromTo(
+      '#map',
+      {
+        opacity: 0
+      },
+      {
+        opacity: 1,
+        duration: 1.5,
+        ease: 'Expo.easeIn'
+      }
+    )
     this.$nextTick(() => {
       const map = this.$refs.myMap.mapObject
       const drawControl = new window.L.Control.Draw({
@@ -493,7 +473,7 @@ export default {
   background-color: black;
 }
 
-.buttons {
+/* .buttons {
   border: none;
   background-color: rgb(0, 0, 0);
   border-radius: 10px;
@@ -507,16 +487,7 @@ export default {
 
 .buttons:hover {
   opacity: 1;
-}
-
-.infobar {
-  opacity: 0.7;
-}
-
-.sidebarText {
-  color: white;
-  font-family: 'Roboto Mono', monospace;
-}
+} */
 
 #map {
   height: 100vh;
@@ -558,7 +529,6 @@ export default {
 }
 
 #innerCircle {
-  animation: stroke-dashoffset 0.4s;
   fill: none;
   opacity: 1;
   stroke: rgb(255, 255, 255);
@@ -568,7 +538,6 @@ export default {
 }
 
 #innerCircleShadow {
-  animation: stroke-dashoffset 0.4s;
   fill: none;
   opacity: 0.3;
   stroke: rgb(255, 255, 255);
