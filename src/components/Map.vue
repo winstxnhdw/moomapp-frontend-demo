@@ -28,7 +28,8 @@
         :lat-lngs="interpolate" 
         :color="polyline.color" 
         :opacity="polyline.opacity" 
-        :dashArray="polyline.dashArray"/>
+        :dashArray="polyline.dashArray"
+        :weight="polyline.weight"/>
 
       <l-marker ref="myMarkers"
         v-for="(marker, index) in markers"
@@ -141,7 +142,8 @@ export default {
       polyline: {
         color: '#FFF',
         opacity: 0.6,
-        dashArray: "5, 10"
+        dashArray: "5, 10",
+        weight: 1
       }
     }
   },
