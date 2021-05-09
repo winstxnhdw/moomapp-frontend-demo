@@ -122,14 +122,20 @@ export default {
 
       icon: L.icon({
         iconUrl: require('/src/assets/marker.svg'),
-        iconSize: [20, 20],
-        iconAnchor: [10, 10]
+        iconSize: [5, 5],
+        iconAnchor: [2.5, 2.5],
+        shadowUrl: require('/src/assets/s_marker.svg'),
+        shadowSize: [20, 20],
+        shadowAnchor: [10, 10],
       }),
 
       icon_selected: L.icon({
         iconUrl: require('/src/assets/marker_selected.svg'),
-        iconSize: [20, 20],
-        iconAnchor: [10, 10]
+        iconSize: [5, 5],
+        iconAnchor: [2.5, 2.5],
+        shadowUrl: require('/src/assets/s_marker_selected.svg'),
+        shadowSize: [20, 20],
+        shadowAnchor: [10, 10],
       }),
 
       polyline: {
