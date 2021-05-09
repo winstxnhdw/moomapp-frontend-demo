@@ -5,7 +5,7 @@
 
     <svg id="zoomBar" viewBox="0 0 300 300">
       <circle id="outerCircle" cx=150 cy=150 r=10 />
-      <circle id="innerCircle" cx=150 cy=150 r=9 :stroke-dashoffset="currentZoom"/>
+      <circle id="innerCircle" cx=150 cy=150 r=9 />
     </svg>
 
     <input class="input" type="file" @change="importCSV">
@@ -94,6 +94,7 @@ import { getAPI } from '@/axios';
 import { LMap, LMarker, LControl, LPolyline, LImageOverlay} from 'vue2-leaflet';
 import L from 'leaflet';
 import 'leaflet-draw';
+import gsap from 'gsap';
 
 export default {
   name: 'Map',
@@ -257,7 +258,15 @@ export default {
     },
 
     zoomUpdate(zoom) {
+      let oldZoom = this.currentZoom
       this.currentZoom = (57/(this.maxZoom - this.minZoom)) * (zoom - this.minZoom);
+
+      gsap.fromTo('#innerCircle', {
+        strokeDashoffset: oldZoom
+      },
+      {
+        strokeDashoffset: this.currentZoom
+      });
     },
 
     importCSV(event) {
