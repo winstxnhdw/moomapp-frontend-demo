@@ -9,7 +9,7 @@
 
       <div v-else>
         <Map />
-        <SplashScreen id="splash" />
+        <SplashScreen id="SplashScreen" />
       </div>
     </main>
   </div>
@@ -51,13 +51,13 @@ export default {
   mounted() {
     setTimeout(() => {
       this.isLoading = false;
-    }, 500);
+    }, 2000);
   }
 }
 </script>
 
 <style>
-  #splash {
+  #SplashScreen {
     position: fixed;
     z-index: 1000;
   }
