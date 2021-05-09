@@ -265,7 +265,8 @@ export default {
         strokeDashoffset: oldZoom
       },
       {
-        strokeDashoffset: this.currentZoom
+        strokeDashoffset: this.currentZoom,
+        ease: 'Expo.easeOut'
       });
     },
 
