@@ -6,6 +6,8 @@
     <svg id="zoomBar" viewBox="0 0 300 300">
       <circle id="outerCircle" cx=150 cy=150 r=10 />
       <circle id="innerCircle" cx=150 cy=150 r=9 />
+      <circle id="innerCircleShadow" cx=150 cy=150 r=9 />
+      <text id="zoomText" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">ZOOM</text>
     </svg>
 
     <input class="input" type="file" @change="importCSV">
@@ -268,6 +270,14 @@ export default {
         strokeDashoffset: this.currentZoom,
         ease: 'Expo.easeOut'
       });
+
+      gsap.fromTo('#innerCircleShadow', {
+        strokeDashoffset: oldZoom
+      },
+      {
+        strokeDashoffset: this.currentZoom,
+        ease: 'power3.out'
+      });
     },
 
     importCSV(event) {
@@ -495,6 +505,12 @@ export default {
     z-index: 1000;
   }
 
+  #zoomText {
+    fill: white;
+    font-family: 'Krona One', sans-serif;
+    font-size: 1.5px;
+  }
+
   #outerCircle {
     fill: none;
     opacity: 0.4;
@@ -507,7 +523,18 @@ export default {
     fill: none;
     opacity: 1;
     stroke: rgb(255, 255, 255);
+    stroke-linecap: round;
     stroke-width: 2px;
+    stroke-dasharray: 57;
+  }
+
+  #innerCircleShadow {
+    animation: stroke-dashoffset 0.4s;
+    fill: none;
+    opacity: 0.3;
+    stroke: rgb(255, 255, 255);
+    stroke-linecap: round;
+    stroke-width: 4px;
     stroke-dasharray: 57;
   }
 

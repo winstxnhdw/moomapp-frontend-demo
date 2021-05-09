@@ -16,12 +16,6 @@
         begin: false
       }
     },
-
-    method: {
-      begin() {
-        this.begin = true;
-      }
-    },
     
     mounted() { 
       this.$nextTick(() => {
