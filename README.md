@@ -1,5 +1,5 @@
 # moomap-frontend
-Web app to showcase waypoint management UI for MooVita. Also happens to be the world's first waypoint manager done with Leaflet.
+Web app to showcase the UI of a robust waypoint manager, which also happens to be the world's first waypoint manager done with Leaflet.
 ## Project setup
 ```
 npm install
