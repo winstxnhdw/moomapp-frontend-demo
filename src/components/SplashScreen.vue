@@ -1,21 +1,15 @@
 <template>
   <div
     v-if="!begin"
-    @keyup.enter="begin = !begin"
+    @keyup.enter="beginFast"
     tabindex="0"
-    class="background"
+    class="background noselect"
     ref="splash"
   >
-    <p class="logo">MOOVITA</p>
-    <button
-      type="button"
-      class="btn"
-      id="startBtn"
-      data-toggle="button"
-      @click="begin = !begin"
-    >
+    <p class="logo noselect">MOOVITA</p>
+    <b-button id="startBtn" @click="beginSlow">
       BEGIN
-    </button>
+    </b-button>
   </div>
 </template>
 
@@ -28,6 +22,36 @@ export default {
   data() {
     return {
       begin: false
+    }
+  },
+
+  methods: {
+    beginSlow() {
+      gsap.fromTo(
+        '.background',
+        {
+          y: 0
+        },
+        {
+          y: -1000,
+          ease: 'Expo.easeIn',
+          duration: 1
+        }
+      )
+      setTimeout(() => {
+        this.begin = true
+      }, 2000)
+    },
+
+    beginFast() {
+      gsap.to('.background', {
+        opacity: 0,
+        ease: 'Expo.easeOut',
+        duration: 0.5
+      })
+      setTimeout(() => {
+        this.begin = true
+      }, 1000)
     }
   },
 
@@ -106,11 +130,11 @@ export default {
   font-size: 15px;
   border: 0px;
   border-radius: 10px;
+  background-color: transparent;
   width: 8%;
 }
 
 #startBtn:hover {
   border: 1px solid #fff;
-  background-color: transparent;
 }
 </style>

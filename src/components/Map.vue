@@ -70,31 +70,16 @@
         :icon="icon">
       </l-marker> -->
 
-      <l-control position="bottomleft">
-        <button
-          type="button"
-          class="btn buttons"
-          data-toggle="button"
-          @click="modeSwitch"
-        >
+      <l-control position="bottomright">
+        <b-button class="buttons" @click="modeSwitch">
           {{ mode }}
-        </button>
-        <button
-          type="button"
-          class="btn buttons"
-          data-toggle="button"
-          @click="optimiseWaypoints"
-        >
+        </b-button>
+        <b-button class="buttons" @click="optimiseWaypoints">
           Optimize
-        </button>
-        <button
-          type="button"
-          class="btn buttons"
-          data-toggle="button"
-          @click="exportWaypoints"
-        >
+        </b-button>
+        <b-button class="buttons" @click="exportWaypoints">
           Export
-        </button>
+        </b-button>
       </l-control>
     </l-map>
   </div>
@@ -473,21 +458,21 @@ export default {
   background-color: black;
 }
 
-/* .buttons {
+.buttons {
   border: none;
   background-color: rgb(0, 0, 0);
-  border-radius: 10px;
+  border-radius: 8px;
   color: white;
   font-family: 'Roboto Mono', monospace;
   font-size: 15px;
   margin-right: 5px;
-  opacity: 0.8;
+  opacity: 0.7;
   z-index: 1;
 }
 
 .buttons:hover {
   opacity: 1;
-} */
+}
 
 #map {
   height: 100vh;
