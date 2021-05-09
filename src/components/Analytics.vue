@@ -1,19 +1,14 @@
-<template>
-</template>
+<template> </template>
 
 <script>
-  export default {
-    name: 'Analytics',
-    data() {
-      return {
-      }
-    },
+export default {
+  name: 'Analytics',
+  data() {
+    return {}
+  },
 
-    methods: {
-      }
-  }
-
+  methods: {}
+}
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
