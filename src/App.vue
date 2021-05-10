@@ -6,7 +6,14 @@
       <Mobile v-if="isMobile()" />
 
       <div v-else>
-        <Map v-if="loadMap" />
+        <b-row no-gutters>
+          <b-col cols="3">
+            <Analytics id="Analytics" />
+          </b-col>
+          <b-col cols="9">
+            <Map v-if="loadMap" />
+          </b-col>
+        </b-row>
         <SplashScreen id="SplashScreen" />
       </div>
     </main>
@@ -18,6 +25,7 @@ import LoadingScreen from './components/LoadingScreen'
 import Mobile from './components/Mobile'
 import Map from './components/Map'
 import SplashScreen from './components/SplashScreen'
+import Analytics from './components/Analytics'
 
 export default {
   name: 'App',
@@ -25,7 +33,8 @@ export default {
     Mobile,
     Map,
     LoadingScreen,
-    SplashScreen
+    SplashScreen,
+    Analytics
   },
 
   data() {
@@ -63,7 +72,8 @@ export default {
 
 <style>
 #app {
-  background-color: black;
+  background-color: rgb(0, 0, 0);
+  position: fixed;
   height: 100vh;
   width: 100vw;
 }
@@ -71,5 +81,9 @@ export default {
 #SplashScreen {
   position: fixed;
   z-index: 1000;
+}
+
+#Analytics {
+  background-color: rgb(0, 0, 0);
 }
 </style>

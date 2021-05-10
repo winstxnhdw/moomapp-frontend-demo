@@ -17,7 +17,7 @@
       </text>
     </svg>
 
-    <input class="input" type="file" @change="importCSV" />
+    <!-- <input class="input" type="file" @change="importCSV" /> -->
 
     <l-map
       ref="myMap"
@@ -35,7 +35,7 @@
       :minZoom="minZoom"
       :maxZoom="maxZoom"
       :maxBounds="bounds"
-      :maxBoundsViscosity="1.0"
+      :maxBoundsViscosity="0.9"
       @update:zoom="zoomUpdate"
       @click="createMarker"
     >
@@ -475,20 +475,18 @@ export default {
 }
 
 #map {
-  height: 100vh;
-  position: 'relative';
-  width: 100vw;
+  position: fixed;
+  height: 100%;
+  width: 75%;
   z-index: -1;
 }
 
 #vignette {
   box-shadow: inset 0 0 100px black;
-  height: 100vh;
-  left: 0;
-  top: 0;
+  height: inherit;
   position: fixed;
   pointer-events: none;
-  width: 100vw;
+  width: inherit;
   z-index: 1000;
 }
 

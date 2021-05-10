@@ -1,11 +1,20 @@
 <template>
-  <div id="analyticsBar">
-    <b-nav tabs fill>
-      <b-nav-item active>Active</b-nav-item>
-      <b-nav-item>Link</b-nav-item>
-      <b-nav-item>Link with a long name </b-nav-item>
-      <b-nav-item disabled>Disabled</b-nav-item>
-    </b-nav>
+  <div>
+    <b-tabs id="tabs" content-class="mt-3" justified>
+      <b-tab title="Analysis" active></b-tab>
+      <b-tab title="Optimization"></b-tab>
+      <b-tab title="Configuration">
+        <div class="tab">
+          <b-form-file
+            v-model="file1"
+            :state="Boolean(file1)"
+            placeholder="Choose a file or drop it here..."
+            drop-placeholder="Drop file here..."
+          >
+          </b-form-file>
+        </div>
+      </b-tab>
+    </b-tabs>
   </div>
 </template>
 
@@ -13,7 +22,9 @@
 export default {
   name: 'Analytics',
   data() {
-    return {}
+    return {
+      file1: null
+    }
   },
 
   methods: {}
@@ -21,17 +32,23 @@ export default {
 </script>
 
 <style scoped>
-.h1 {
-  color: rgb(255, 255, 0);
-  font-size: 100px;
-  top: 100%;
-  position: fixed;
-  opacity: 1;
+.tab-content > .tab-pane {
+  border: 0px;
 }
+
+.tab {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+#tabs {
+  color: white !important;
+  border-width: 0px;
+}
+
 #analyticsBar {
   position: fixed;
-  background-color: black;
-  height: 100%;
-  width: 20%;
+  height: 100vh;
+  width: 100vw;
 }
 </style>
