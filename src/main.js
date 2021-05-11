@@ -5,9 +5,8 @@ import './scss/main.scss';
 
 import Vue from 'vue'
 import VuePapaParse from 'vue-papa-parse'
+import vuetify from '@/plugins/vuetify' 
 import App from './App.vue'
-
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 
 delete Icon.Default.prototype._getIconUrl;
 Icon.Default.mergeOptions({
@@ -18,10 +17,9 @@ Icon.Default.mergeOptions({
 
 Vue.config.productionTip = false
 
-Vue.use(BootstrapVue)
-Vue.use(IconsPlugin)
 Vue.use(VuePapaParse)
 
 new Vue({
+  vuetify,
   render: h => h(App),
 }).$mount('#app')

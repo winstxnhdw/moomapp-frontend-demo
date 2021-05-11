@@ -6,13 +6,7 @@
       <circle id="outerCircle" cx="150" cy="150" r="10" />
       <circle id="innerCircle" cx="150" cy="150" r="9" />
       <circle id="innerCircleShadow" cx="150" cy="150" r="9" />
-      <text
-        id="zoomText"
-        x="50%"
-        y="50%"
-        dominant-baseline="middle"
-        text-anchor="middle"
-      >
+      <text id="zoomText" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">
         ZOOM
       </text>
     </svg>
@@ -71,15 +65,15 @@
       </l-marker> -->
 
       <l-control position="bottomright">
-        <b-button class="buttons" @click="modeSwitch">
+        <v-btn outlined class="buttons" @click="modeSwitch">
           {{ mode }}
-        </b-button>
-        <b-button class="buttons" @click="optimiseWaypoints">
+        </v-btn>
+        <v-btn outlined class="buttons" @click="optimiseWaypoints">
           Optimize
-        </b-button>
-        <b-button class="buttons" @click="exportWaypoints">
+        </v-btn>
+        <v-btn outlined class="buttons" @click="exportWaypoints">
           Export
-        </b-button>
+        </v-btn>
       </l-control>
     </l-map>
   </div>
@@ -247,8 +241,7 @@ export default {
 
     zoomUpdate(zoom) {
       let oldZoom = this.currentZoom
-      this.currentZoom =
-        (57 / (this.maxZoom - this.minZoom)) * (zoom - this.minZoom)
+      this.currentZoom = (57 / (this.maxZoom - this.minZoom)) * (zoom - this.minZoom)
 
       gsap.fromTo(
         '#innerCircle',
@@ -419,10 +412,7 @@ export default {
           })
         } else if (type === 'circle') {
           this.markers.forEach((dummy, id) => {
-            if (
-              map.distance(layer.getLatLng(), this.markers[id]) <
-              layer.getRadius()
-            ) {
+            if (map.distance(layer.getLatLng(), this.markers[id]) < layer.getRadius()) {
               this.selectedMarkersId.push(id)
               this.selectedMarkers.push(this.markers[id])
             }
@@ -432,9 +422,7 @@ export default {
         // Visualise selected markers
         this.selectedMarkersId.forEach((dummy, id) => {
           let selectedMarker = this.selectedMarkersId[id]
-          this.$refs.myMarkers[selectedMarker].mapObject.setIcon(
-            this.icon_selected
-          )
+          this.$refs.myMarkers[selectedMarker].mapObject.setIcon(this.icon_selected)
           this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(0.7)
         })
 
