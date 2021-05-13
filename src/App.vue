@@ -6,14 +6,14 @@
       <Mobile v-if="isMobile()" />
 
       <div v-else>
-        <b-row no-gutters>
-          <b-col cols="3">
+        <v-row no-gutters>
+          <v-col cols="3">
             <Analytics id="Analytics" />
-          </b-col>
-          <b-col cols="9">
+          </v-col>
+          <v-col cols="9">
             <Map v-if="loadMap" />
-          </b-col>
-        </b-row>
+          </v-col>
+        </v-row>
         <SplashScreen id="SplashScreen" />
       </div>
     </main>
@@ -46,11 +46,7 @@ export default {
 
   methods: {
     isMobile() {
-      if (
-        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-          navigator.userAgent
-        )
-      ) {
+      if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
         return true
       } else {
         return false

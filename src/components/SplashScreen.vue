@@ -1,15 +1,9 @@
 <template>
-  <div
-    v-if="!begin"
-    @keyup.enter="beginFast"
-    tabindex="0"
-    class="background noselect"
-    ref="splash"
-  >
+  <div v-if="!begin" @keyup.enter="beginFast" tabindex="0" class="background noselect" ref="splash">
     <p class="logo noselect">MOOVITA</p>
-    <b-button id="startBtn" @click="beginSlow">
+    <v-btn outlined id="startBtn" @click="beginSlow">
       BEGIN
-    </b-button>
+    </v-btn>
   </div>
 </template>
 
@@ -132,6 +126,7 @@ export default {
   border-radius: 10px;
   background-color: transparent;
   width: 8%;
+  opacity: 0.5;
 }
 
 #startBtn:hover {
