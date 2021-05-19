@@ -27,7 +27,7 @@ export default {
           y: 0
         },
         {
-          y: -1000,
+          y: -1200,
           ease: 'Expo.easeIn',
           duration: 1
         }

@@ -8,7 +8,7 @@
       <div v-else>
         <v-row no-gutters>
           <v-col cols="3">
-            <Analytics id="Analytics" />
+            <Analytics />
           </v-col>
           <v-col cols="9">
             <Map v-if="loadMap" />
@@ -77,9 +77,5 @@ export default {
 #SplashScreen {
   position: fixed;
   z-index: 1000;
-}
-
-#Analytics {
-  background-color: rgb(0, 0, 0);
 }
 </style>
