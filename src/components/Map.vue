@@ -466,7 +466,6 @@ export default {
   position: fixed;
   height: 100%;
   width: 75%;
-  z-index: -1;
 }
 
 #vignette {

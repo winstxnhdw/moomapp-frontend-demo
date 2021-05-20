@@ -15,19 +15,19 @@
 
     <v-tabs-items dark class="tabs" v-model="tab">
       <v-tab-item :key="1" value="analysis">
-        <v-card flat height="100%">
+        <v-card flat height="100vh">
           <v-card-text>contact</v-card-text>
           <line-chart :chart-data="datacollection"></line-chart>
           <v-btn @click="fillData()">Randomize</v-btn>
         </v-card>
       </v-tab-item>
       <v-tab-item :key="2" value="optimization">
-        <v-card flat min-height="100%">
+        <v-card flat min-height="100vh">
           <v-card-text>contact</v-card-text>
         </v-card>
       </v-tab-item>
       <v-tab-item :key="3" value="configuration">
-        <v-card flat min-height="100%">
+        <v-card flat min-height="100vh">
           <v-card-text>contact</v-card-text>
         </v-card>
       </v-tab-item>
