@@ -71,9 +71,6 @@
         <v-btn outlined class="buttons" @click="optimiseWaypoints">
           Optimize
         </v-btn>
-        <v-btn outlined class="buttons" @click="exportWaypoints">
-          Export
-        </v-btn>
       </l-control>
     </l-map>
   </div>

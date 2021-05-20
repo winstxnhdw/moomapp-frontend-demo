@@ -1,22 +1,23 @@
 <template>
   <div id="app">
     <LoadingScreen v-if="isLoading" />
+    <v-app>
+      <v-main v-if="!isLoading">
+        <Mobile v-if="isMobile()" />
 
-    <main v-if="!isLoading">
-      <Mobile v-if="isMobile()" />
-
-      <div v-else>
-        <v-row no-gutters>
-          <v-col cols="3">
-            <Analytics />
-          </v-col>
-          <v-col cols="9">
-            <Map v-if="loadMap" />
-          </v-col>
-        </v-row>
-        <SplashScreen id="SplashScreen" />
-      </div>
-    </main>
+        <div v-else>
+          <v-row no-gutters>
+            <v-col cols="3">
+              <Analytics />
+            </v-col>
+            <v-col cols="9">
+              <Map v-if="loadMap" />
+            </v-col>
+          </v-row>
+          <SplashScreen id="SplashScreen" />
+        </div>
+      </v-main>
+    </v-app>
   </div>
 </template>
 

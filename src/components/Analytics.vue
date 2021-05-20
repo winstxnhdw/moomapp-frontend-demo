@@ -15,21 +15,71 @@
 
     <v-tabs-items dark class="tabs" v-model="tab">
       <v-tab-item :key="1" value="analysis">
-        <v-card flat height="100vh">
-          <v-card-text>contact</v-card-text>
-          <line-chart :chart-data="datacollection"></line-chart>
-          <v-btn @click="fillData()">Randomize</v-btn>
-        </v-card>
+        <v-container>
+          <v-card-text>{{ slider1.label }}</v-card-text>
+          <v-slider
+            v-model="slider1.val"
+            :hint="slider1.hint"
+            :step="slider1.step"
+            :color="slider1.colour"
+            :min="slider1.min"
+            :max="slider1.max"
+          >
+            <template v-slot:append>
+              <v-text-field
+                v-model="slider1.val"
+                class="mt-0 pt-0 sliderText"
+                hide-details
+                type="number"
+              ></v-text-field>
+            </template>
+          </v-slider>
+
+          <v-card-text>{{ slider2.label }}</v-card-text>
+          <v-slider
+            v-model="slider2.val"
+            :hint="slider2.hint"
+            :step="slider2.step"
+            :color="slider2.colour"
+            :min="slider2.min"
+            :max="slider2.max"
+          >
+            <template v-slot:append>
+              <v-text-field
+                v-model="slider2.val"
+                class="mt-0 pt-0 sliderText"
+                hide-details
+                type="number"
+              ></v-text-field>
+            </template>
+          </v-slider>
+          <v-card flat height="100vh">
+            <line-chart :chart-data="datacollection"></line-chart>
+            <v-btn @click="fillData()">Randomize</v-btn>
+          </v-card>
+        </v-container>
       </v-tab-item>
+
       <v-tab-item :key="2" value="optimization">
-        <v-card flat min-height="100vh">
-          <v-card-text>contact</v-card-text>
-        </v-card>
+        <v-container>
+          <v-card flat min-height="100vh">
+            <v-card-text>contact</v-card-text>
+          </v-card>
+        </v-container>
       </v-tab-item>
+
       <v-tab-item :key="3" value="configuration">
-        <v-card flat min-height="100vh">
-          <v-card-text>contact</v-card-text>
-        </v-card>
+        <v-container>
+          <v-card class="pa-3" min-height="100%">
+            <v-card-text class="pl-0 pt-0">Import CSV files</v-card-text>
+            <v-btn class="mb-3">Import</v-btn>
+          </v-card>
+          <v-card class="pa-3" min-height="100%">
+            <v-card-text class="pl-0 pt-0">Export CSV files</v-card-text>
+            <v-btn class="mb-3">Export</v-btn>
+          </v-card>
+          <v-card class="pa-3" min-height="100vh"> </v-card>
+        </v-container>
       </v-tab-item>
     </v-tabs-items>
   </div>
@@ -43,7 +93,27 @@ export default {
   data() {
     return {
       tab: 'analysis',
-      datacollection: {}
+      datacollection: {},
+
+      slider1: {
+        label: 'Max Lateral Deviation',
+        hint: 'Optimized path will not exceed the set limits (in metres)',
+        val: 0.5,
+        colour: 'orange darken-3',
+        step: 0.01,
+        min: 0,
+        max: 1.0
+      },
+
+      slider2: {
+        label: 'Safety Threshold',
+        hint: 'Optimized path will not exceed the set limits (in metres)',
+        val: 0.5,
+        colour: 'orange darken-3',
+        step: 0.01,
+        min: 0,
+        max: 1.0
+      }
     }
   },
 
@@ -94,7 +164,15 @@ export default {
   color: #fff;
 }
 
+.v-card__text {
+  color: white;
+}
+
 .tabs {
   font-family: 'Roboto Mono', monospace;
+}
+
+.sliderText {
+  width: 55px;
 }
 </style>
