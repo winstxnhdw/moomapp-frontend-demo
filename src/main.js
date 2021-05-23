@@ -4,7 +4,6 @@ import { Icon } from 'leaflet';
 import './scss/main.scss';
 
 import Vue from 'vue'
-import VuePapaParse from 'vue-papa-parse'
 import vuetify from '@/plugins/vuetify' 
 import App from './App.vue'
 
@@ -16,8 +15,6 @@ Icon.Default.mergeOptions({
 });
 
 Vue.config.productionTip = false
-
-Vue.use(VuePapaParse)
 
 new Vue({
   vuetify,

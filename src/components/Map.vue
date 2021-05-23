@@ -11,8 +11,6 @@
       </text>
     </svg>
 
-    <!-- <input class="input" type="file" @change="importCSV" /> -->
-
     <l-map
       ref="myMap"
       v-on:keydown="keyPress"
@@ -33,6 +31,7 @@
       @update:zoom="zoomUpdate"
       @click="createMarker"
     >
+      <l-control-layers position="topleft"></l-control-layers>
       <l-image-overlay :url="url" :bounds="bounds" />
 
       <l-polyline
@@ -43,18 +42,20 @@
         :weight="polyline.weight"
       />
 
-      <l-marker
-        ref="myMarkers"
-        v-for="(marker, index) in markers"
-        :key="index"
-        :draggable="draggable"
-        :lat-lng="marker"
-        :icon="icon"
-        @click="deleteMarker($event, index)"
-        @drag="dragEvent($event, index)"
-        @dragstart="dragStart($event, index)"
-        @dragend="dragEnd($event, index)"
-      ></l-marker>
+      <l-layer-group layerType="overlay" name="Markers">
+        <l-marker
+          ref="myMarkers"
+          v-for="(marker, index) in markers"
+          :key="index"
+          :draggable="draggable"
+          :lat-lng="marker"
+          :icon="icon"
+          @click="deleteMarker($event, index)"
+          @drag="dragEvent($event, index)"
+          @dragstart="dragStart($event, index)"
+          @dragend="dragEnd($event, index)"
+        ></l-marker>
+      </l-layer-group>
 
       <!-- <l-marker
         v-for="(marker, id) in optiMarkers"
@@ -77,8 +78,9 @@
 </template>
 
 <script>
+import { eventBus } from './../event-bus'
 import { getAPI } from '@/axios'
-import { LMap, LMarker, LControl, LPolyline, LImageOverlay } from 'vue2-leaflet'
+import { LMap, LMarker, LControl, LPolyline, LImageOverlay, LControlLayers, LLayerGroup } from 'vue2-leaflet'
 import L from 'leaflet'
 import 'leaflet-draw'
 import gsap from 'gsap'
@@ -141,7 +143,9 @@ export default {
     LMarker,
     LControl,
     LPolyline,
-    LImageOverlay
+    LImageOverlay,
+    LControlLayers,
+    LLayerGroup
   },
 
   methods: {
@@ -263,25 +267,6 @@ export default {
       )
     },
 
-    importCSV(event) {
-      // x: longitude, y: lattitude
-      const self = this
-
-      this.$papa.parse(event.target.files[0], {
-        header: true,
-        complete: function(results) {
-          let data = results.data
-          data.forEach((dummy, id) => {
-            let newLat = parseFloat(data[id].y)
-            let newLng = parseFloat(data[id].x)
-            let newLatLng = { lat: newLat, lng: newLng }
-            self.markers.push(newLatLng)
-            self.interpolate.push([newLat, newLng])
-          })
-        }
-      })
-    },
-
     optimiseWaypoints() {
       let x = []
       let y = []
@@ -375,6 +360,25 @@ export default {
         ease: 'Expo.easeIn'
       }
     )
+
+    eventBus.$on('importCSV', () => {
+      getAPI
+        .get('/importcsv')
+        .then(response => {
+          // x: longitude, y: lattitude
+          this.markers = []
+          response.data['2.0']['1']['x'].forEach((dummy, id) => {
+            let newLng = response.data['2.0']['1']['x'][id]
+            let newLat = response.data['2.0']['1']['y'][id]
+            let newLatLng = { lat: newLat, lng: newLng }
+            this.markers.push(newLatLng)
+          })
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    })
+
     this.$nextTick(() => {
       const map = this.$refs.myMap.mapObject
       const drawControl = new window.L.Control.Draw({

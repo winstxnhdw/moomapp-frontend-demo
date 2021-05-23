@@ -55,7 +55,6 @@
           </v-slider>
           <v-card flat height="100vh">
             <line-chart :chart-data="datacollection"></line-chart>
-            <v-btn @click="fillData()">Randomize</v-btn>
           </v-card>
         </v-container>
       </v-tab-item>
@@ -72,7 +71,7 @@
         <v-container>
           <v-card class="pa-3" min-height="100%">
             <v-card-text class="pl-0 pt-0">Import CSV files</v-card-text>
-            <v-btn class="mb-3">Import</v-btn>
+            <v-btn class="mb-3" @click="importCSV">Import</v-btn>
           </v-card>
           <v-card class="pa-3" min-height="100%">
             <v-card-text class="pl-0 pt-0">Export CSV files</v-card-text>
@@ -86,6 +85,7 @@
 </template>
 
 <script>
+import { eventBus } from './../event-bus'
 import LineChart from './AnalysisChart.js'
 
 export default {
@@ -141,6 +141,10 @@ export default {
     },
     getRandomInt() {
       return Math.floor(Math.random() * (50 - 5 + 1)) + 5
+    },
+
+    importCSV() {
+      eventBus.$emit('importCSV')
     }
   },
 
