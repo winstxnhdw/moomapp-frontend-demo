@@ -272,6 +272,7 @@ export default {
     optimiseWaypoints() {
       let x = []
       let y = []
+      this.optiMarkers = []
 
       this.selectedMarkers.forEach((dummy, id) => {
         x.push(this.selectedMarkers[id].lng)
@@ -289,7 +290,7 @@ export default {
         })
         .then(response => {
           this.optiMarkers = []
-          response.data[1].forEach((dummy, id) => {
+          response.data['x'].forEach((dummy, id) => {
             let newLat = response.data['y'][id]
             let newLng = response.data['x'][id]
             let newLatLng = { lat: newLat, lng: newLng }
