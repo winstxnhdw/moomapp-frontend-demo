@@ -57,13 +57,10 @@
         ></l-marker>
       </l-layer-group>
 
-      <!-- <l-marker
-        v-for="(marker, id) in optiMarkers"
-        :key="id"
-        :draggable="draggable" 
-        :lat-lng="marker"
-        :icon="icon">
-      </l-marker> -->
+      <l-layer-group layerType="overlay" name="Optimised Markers">
+        <l-marker v-for="(marker, id) in optiMarkers" :key="id" :draggable="draggable" :lat-lng="marker" :icon="icon">
+        </l-marker>
+      </l-layer-group>
 
       <l-control position="bottomright">
         <v-btn outlined class="buttons" @click="modeSwitch">
@@ -290,6 +287,7 @@ export default {
             let newLng = response.data[0][id]
             let newLatLng = { lat: newLat, lng: newLng }
             this.optiMarkers.push(newLatLng)
+            console.log(this.optiMarkers)
           })
         })
         .catch(error => {
@@ -401,6 +399,7 @@ export default {
       map.on(window.L.Draw.Event.CREATED, e => {
         let layer = e.layer
         let type = e.layerType
+        this.resetHighlight()
         this.selectedMarkers = []
         this.selectedMarkersId = []
 
