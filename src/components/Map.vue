@@ -131,6 +131,11 @@ export default {
         opacity: 0.6,
         dashArray: '5, 10',
         weight: 1
+      },
+
+      sliders: {
+        maxlatdev: 0.5,
+        safetythresh: 0.5
       }
     }
   },
@@ -277,39 +282,23 @@ export default {
         .get('/optimise', {
           params: {
             x: x,
-            y: y
+            y: y,
+            maxlatdev: this.sliders.maxlatdev,
+            safetythresh: this.sliders.safetythresh
           }
         })
         .then(response => {
           this.optiMarkers = []
-          this.selectedMarkers.forEach((dummy, id) => {
-            let newLat = response.data[1][id]
-            let newLng = response.data[0][id]
+          response.data[1].forEach((dummy, id) => {
+            let newLat = response.data['y'][id]
+            let newLng = response.data['x'][id]
             let newLatLng = { lat: newLat, lng: newLng }
             this.optiMarkers.push(newLatLng)
-            console.log(this.optiMarkers)
           })
         })
         .catch(error => {
           console.log(error)
         })
-    },
-
-    exportWaypoints() {
-      if (this.optiMarkers.length) {
-        let data = {}
-        let dataJSON = []
-
-        this.optiMarkers.forEach((dummy, id) => {
-          let x = this.optiMarkers[id].lng
-          let y = this.optiMarkers[id].lat
-          data = { x: x, y: y }
-          dataJSON.push(data)
-        })
-
-        let dataCSV = this.$papa.unparse(dataJSON)
-        this.$papa.download(dataCSV, 'solution')
-      }
     },
 
     keyPress(event) {
@@ -375,6 +364,14 @@ export default {
         .catch(error => {
           console.log(error)
         })
+    })
+
+    eventBus.$on('slider1', data => {
+      this.sliders.maxlatdev = data
+    })
+
+    eventBus.$on('slider2', data => {
+      this.sliders.safetythresh = data
     })
 
     this.$nextTick(() => {

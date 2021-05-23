@@ -24,6 +24,7 @@
             :color="slider1.colour"
             :min="slider1.min"
             :max="slider1.max"
+            @change="echoSlider1"
           >
             <template v-slot:append>
               <v-text-field
@@ -43,6 +44,7 @@
             :color="slider2.colour"
             :min="slider2.min"
             :max="slider2.max"
+            @change="echoSlider2"
           >
             <template v-slot:append>
               <v-text-field
@@ -145,6 +147,13 @@ export default {
 
     importCSV() {
       eventBus.$emit('importCSV')
+    },
+
+    echoSlider1() {
+      eventBus.$emit('slider1', this.slider1.val)
+    },
+    echoSlider2() {
+      eventBus.$emit('slider2', this.slider2.val)
     }
   },
 
