@@ -24,12 +24,12 @@ export default {
         datasets: [
           {
             label: 'Data One',
-            backgroundColor: '#f87979',
+            backgroundColor: '#EF6C00',
             data: [this.getRandomInt(), this.getRandomInt()]
           },
           {
             label: 'Data One',
-            backgroundColor: '#f87979',
+            backgroundColor: '#EF6C00',
             data: [this.getRandomInt(), this.getRandomInt()]
           }
         ]
