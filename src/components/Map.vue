@@ -129,7 +129,13 @@ export default {
 
       sliders: {
         maxlatdev: 0.5,
-        safetythresh: 0.5
+        safetythresh: 0.5,
+        weights: 50
+      },
+
+      fields: {
+        width: 2.0,
+        curbs: 9
       }
     }
   },
@@ -258,7 +264,10 @@ export default {
             x: x,
             y: y,
             maxlatdev: this.sliders.maxlatdev,
-            safetythresh: this.sliders.safetythresh
+            safetythresh: this.sliders.safetythresh,
+            weights: this.weights,
+            width: this.width,
+            curbs: this.curbs
           }
         })
         .then(response => {
@@ -343,9 +352,17 @@ export default {
     eventBus.$on('slider1', data => {
       this.sliders.maxlatdev = data
     })
-
     eventBus.$on('slider2', data => {
       this.sliders.safetythresh = data
+    })
+    eventBus.$on('slider3', data => {
+      this.sliders.weights = data
+    })
+    eventBus.$on('field1', data => {
+      this.fields.width = data
+    })
+    eventBus.$on('field2', data => {
+      this.fields.curbs = data
     })
 
     this.$nextTick(() => {

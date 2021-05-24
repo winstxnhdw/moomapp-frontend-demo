@@ -80,8 +80,4 @@ export default {
   position: fixed;
   z-index: 1000;
 }
-
-.fitHeight {
-  height: 100%;
-}
 </style>
