@@ -1,15 +1,7 @@
 <template>
   <div id="map">
-    <div id="vignette"></div>
-
-    <svg id="zoomBar" viewBox="0 0 300 300">
-      <circle id="outerCircle" cx="150" cy="150" r="10" />
-      <circle id="innerCircle" cx="150" cy="150" r="9" />
-      <circle id="innerCircleShadow" cx="150" cy="150" r="9" />
-      <text id="zoomText" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">
-        ZOOM
-      </text>
-    </svg>
+    <Vignette />
+    <ZoomBar ref="zoomBar" :min-zoom="minZoom" :max-zoom="maxZoom" />
 
     <l-map
       ref="myMap"
@@ -28,7 +20,7 @@
       :maxZoom="maxZoom"
       :maxBounds="bounds"
       :maxBoundsViscosity="0.9"
-      @update:zoom="zoomUpdate"
+      @update:zoom="zoomBarUpdate"
       @click="createMarker"
     >
       <l-control-layers position="topleft"></l-control-layers>
@@ -75,6 +67,8 @@
 </template>
 
 <script>
+import Vignette from './Vignette'
+import ZoomBar from './ZoomBar'
 import { eventBus } from './../event-bus'
 import { getAPI } from '@/axios'
 import { LMap, LMarker, LControl, LPolyline, LImageOverlay, LControlLayers, LLayerGroup } from 'vue2-leaflet'
@@ -84,6 +78,7 @@ import gsap from 'gsap'
 
 export default {
   name: 'Map',
+
   data() {
     return {
       csv: null,
@@ -99,7 +94,6 @@ export default {
       minZoom: 0,
       maxZoom: 4,
       zoom: 0,
-      currentZoom: 0,
       draggable: true,
       crs: L.CRS.Simple,
       url: require('/src/assets/ngeeann_map.png'),
@@ -147,7 +141,9 @@ export default {
     LPolyline,
     LImageOverlay,
     LControlLayers,
-    LLayerGroup
+    LLayerGroup,
+    ZoomBar,
+    Vignette
   },
 
   methods: {
@@ -242,31 +238,8 @@ export default {
       setTimeout(() => (this.mode = 'Create Mode'))
     },
 
-    zoomUpdate(zoom) {
-      let oldZoom = this.currentZoom
-      this.currentZoom = (57 / (this.maxZoom - this.minZoom)) * (zoom - this.minZoom)
-
-      gsap.fromTo(
-        '#innerCircle',
-        {
-          strokeDashoffset: oldZoom
-        },
-        {
-          strokeDashoffset: this.currentZoom,
-          ease: 'Expo.easeOut'
-        }
-      )
-
-      gsap.fromTo(
-        '#innerCircleShadow',
-        {
-          strokeDashoffset: oldZoom
-        },
-        {
-          strokeDashoffset: this.currentZoom,
-          ease: 'power3.out'
-        }
-      )
+    zoomBarUpdate(zoom) {
+      this.$refs.zoomBar.zoomUpdate(zoom)
     },
 
     optimiseWaypoints() {
@@ -464,58 +437,5 @@ export default {
   position: fixed;
   height: 100%;
   width: 75%;
-}
-
-#vignette {
-  box-shadow: inset 0 0 100px black;
-  height: inherit;
-  position: fixed;
-  pointer-events: none;
-  width: inherit;
-  z-index: 1000;
-}
-
-#zoomBar {
-  left: 45%;
-  margin-top: -45%;
-  position: fixed;
-  pointer-events: none;
-  z-index: 1000;
-}
-
-#zoomText {
-  fill: white;
-  font-family: 'Krona One', sans-serif;
-  font-size: 1.5px;
-}
-
-#outerCircle {
-  fill: none;
-  opacity: 0.4;
-  stroke: rgb(133, 129, 129);
-  stroke-width: 5px;
-}
-
-#innerCircle {
-  fill: none;
-  opacity: 1;
-  stroke: rgb(255, 255, 255);
-  stroke-linecap: round;
-  stroke-width: 2px;
-  stroke-dasharray: 57;
-}
-
-#innerCircleShadow {
-  fill: none;
-  opacity: 0.3;
-  stroke: rgb(255, 255, 255);
-  stroke-linecap: round;
-  stroke-width: 4px;
-  stroke-dasharray: 57;
-}
-
-.input {
-  position: fixed;
-  z-index: 1000;
 }
 </style>

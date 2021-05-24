@@ -1,7 +1,8 @@
 <template>
   <div id="app">
-    <LoadingScreen v-if="isLoading" />
     <v-app>
+      <LoadingScreen v-if="isLoading" />
+
       <v-main v-if="!isLoading">
         <Mobile v-if="isMobile()" />
 

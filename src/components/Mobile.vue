@@ -1,9 +1,8 @@
 <template>
   <div class="background">
     <p id="notice">
-      Sorry! There is no mobile support for this website. This website demo
-      features certain functionality, intended for desktop use. Please switch to
-      a desktop for a better user experience.
+      Sorry! There is no mobile support for this website. This website demo features certain functionality, intended for
+      desktop use. Please switch to a desktop for a better user experience.
     </p>
   </div>
 </template>
@@ -14,11 +13,7 @@ import gsap from 'gsap'
 export default {
   name: 'Mobile',
 
-  data() {
-    return {}
-  },
-
-  mounted: function() {
+  mounted() {
     gsap.fromTo(
       '#notice',
       {
