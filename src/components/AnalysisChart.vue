@@ -1,8 +1,12 @@
 <template>
-  <line-chart :chart-data="datacollection"></line-chart>
+  <div>
+    <line-chart :chart-data="datacollection"></line-chart>
+    <!-- <v-btn class="mt-4" @click="fillData">Analyze</v-btn> -->
+  </div>
 </template>
 
 <script>
+import { eventBus } from './../event-bus'
 import LineChart from './../plugins/chart.js'
 
 export default {
@@ -18,30 +22,38 @@ export default {
   },
 
   methods: {
-    fillData() {
+    range(start, end) {
+      return Array(end - start + 1)
+        .fill()
+        .map((_, idx) => start + idx)
+    },
+
+    fillData(unoptimisedCurvature, optimisedCurvature) {
       this.datacollection = {
-        labels: [this.getRandomInt(), this.getRandomInt()],
+        labels: this.range(0, unoptimisedCurvature.length),
         datasets: [
           {
-            label: 'Data One',
+            label: 'Unoptimized',
             backgroundColor: '#EF6C00',
-            data: [this.getRandomInt(), this.getRandomInt()]
+            data: unoptimisedCurvature,
+            pointRadius: 2
           },
           {
-            label: 'Data One',
-            backgroundColor: '#EF6C00',
-            data: [this.getRandomInt(), this.getRandomInt()]
+            label: 'Optimized',
+            backgroundColor: '#B300B3',
+            data: optimisedCurvature,
+            pointRadius: 2
           }
         ]
       }
-    },
-    getRandomInt() {
-      return Math.floor(Math.random() * (50 - 5 + 1)) + 5
     }
   },
 
   mounted() {
-    this.fillData()
+    eventBus.$on('curvatures', data => {
+      console.log(data['unoptimised '])
+      this.fillData(data['unoptimised'], data['optimised'])
+    })
   }
 }
 </script>

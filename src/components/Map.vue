@@ -50,7 +50,13 @@
       </l-layer-group>
 
       <l-layer-group layerType="overlay" name="Optimised Markers">
-        <l-marker v-for="(marker, id) in optiMarkers" :key="id" :draggable="draggable" :lat-lng="marker" :icon="icon">
+        <l-marker
+          v-for="(marker, id) in optimisedMarkers"
+          :key="id"
+          :draggable="draggable"
+          :lat-lng="marker"
+          :icon="icon"
+        >
         </l-marker>
       </l-layer-group>
 
@@ -83,7 +89,7 @@ export default {
     return {
       csv: null,
       markers: [],
-      optiMarkers: [],
+      optimisedMarkers: [],
       selectedMarkersId: [],
       selectedMarkers: [],
       interpolate: [],
@@ -251,7 +257,10 @@ export default {
     optimiseWaypoints() {
       let x = []
       let y = []
-      this.optiMarkers = []
+      let unoptimisedCurvature = []
+      let optimisedCurvature = []
+
+      this.optimisedMarkers = []
 
       this.selectedMarkers.forEach((dummy, id) => {
         x.push(this.selectedMarkers[id].lng)
@@ -265,19 +274,23 @@ export default {
             y: y,
             maxlatdev: this.sliders.maxlatdev,
             safetythresh: this.sliders.safetythresh,
-            weights: this.weights,
-            width: this.width,
-            curbs: this.curbs
+            weights: this.sliders.weights,
+            width: this.fields.width,
+            curbs: this.fields.curbs
           }
         })
         .then(response => {
-          this.optiMarkers = []
+          this.optimisedMarkers = []
           response.data['x'].forEach((dummy, id) => {
             let newLat = response.data['y'][id]
             let newLng = response.data['x'][id]
             let newLatLng = { lat: newLat, lng: newLng }
-            this.optiMarkers.push(newLatLng)
+            this.optimisedMarkers.push(newLatLng)
+            unoptimisedCurvature.push(response.data['wk'][id])
+            optimisedCurvature.push(response.data['ok'][id])
           })
+          let curvatures = { unoptimised: unoptimisedCurvature, optimised: optimisedCurvature }
+          eventBus.$emit('curvatures', curvatures)
         })
         .catch(error => {
           console.log(error)
