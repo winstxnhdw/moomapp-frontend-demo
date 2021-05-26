@@ -64,7 +64,7 @@
         <v-btn outlined class="buttons" @click="modeSwitch">
           {{ mode }}
         </v-btn>
-        <v-btn outlined class="buttons" @click="optimiseWaypoints">
+        <v-btn outlined class="buttons" :loading="isLoading" @click="optimiseWaypoints">
           Optimize
         </v-btn>
       </l-control>
@@ -96,6 +96,7 @@ export default {
       oldMarkerPos: [],
       oldClickedMarkerPos: null,
       mode: 'Create Mode',
+      isLoading: false,
 
       minZoom: 0,
       maxZoom: 4,
@@ -140,8 +141,7 @@ export default {
       },
 
       fields: {
-        width: 2.0,
-        curbs: 9
+        width: 2.0
       }
     }
   },
@@ -255,6 +255,7 @@ export default {
     },
 
     optimiseWaypoints() {
+      this.isLoading = true
       let x = []
       let y = []
       let unoptimisedCurvature = []
@@ -267,18 +268,17 @@ export default {
         y.push(this.selectedMarkers[id].lat)
       })
 
+      let params = {
+        x: x,
+        y: y,
+        maxlatdev: this.sliders.maxlatdev,
+        safetythresh: this.sliders.safetythresh,
+        weights: this.sliders.weights,
+        width: this.fields.width
+      }
+
       getAPI
-        .get('/optimise', {
-          params: {
-            x: x,
-            y: y,
-            maxlatdev: this.sliders.maxlatdev,
-            safetythresh: this.sliders.safetythresh,
-            weights: this.sliders.weights,
-            width: this.fields.width,
-            curbs: this.fields.curbs
-          }
-        })
+        .post('/optimise', params)
         .then(response => {
           this.optimisedMarkers = []
           response.data['x'].forEach((dummy, id) => {
@@ -291,6 +291,7 @@ export default {
           })
           let curvatures = { unoptimised: unoptimisedCurvature, optimised: optimisedCurvature }
           eventBus.$emit('curvatures', curvatures)
+          this.isLoading = false
         })
         .catch(error => {
           console.log(error)
@@ -373,9 +374,6 @@ export default {
     })
     eventBus.$on('field1', data => {
       this.fields.width = data
-    })
-    eventBus.$on('field2', data => {
-      this.fields.curbs = data
     })
 
     this.$nextTick(() => {

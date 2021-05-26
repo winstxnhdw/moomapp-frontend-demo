@@ -1,6 +1,6 @@
 <template>
   <div>
-    <line-chart :chart-data="datacollection"></line-chart>
+    <line-chart :chart-data="datacollection" :options="options"></line-chart>
     <!-- <v-btn class="mt-4" @click="fillData">Analyze</v-btn> -->
   </div>
 </template>
@@ -13,7 +13,18 @@ export default {
   name: 'AnalysisChart',
   data() {
     return {
-      datacollection: {}
+      datacollection: {},
+      options: {
+        scales: {
+          xAxes: [
+            {
+              ticks: {
+                display: false
+              }
+            }
+          ]
+        }
+      }
     }
   },
 
