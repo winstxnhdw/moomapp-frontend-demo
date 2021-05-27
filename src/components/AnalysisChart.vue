@@ -1,7 +1,7 @@
 <template>
   <div>
+    <v-card-text class="text-center">Path Curvature Comparison</v-card-text>
     <line-chart :chart-data="datacollection" :options="options"></line-chart>
-    <!-- <v-btn class="mt-4" @click="fillData">Analyze</v-btn> -->
   </div>
 </template>
 
@@ -13,7 +13,20 @@ export default {
   name: 'AnalysisChart',
   data() {
     return {
-      datacollection: {},
+      datacollection: {
+        datasets: [
+          {
+            label: 'Unoptimized',
+            backgroundColor: '#EF6C00',
+            pointRadius: 2
+          },
+          {
+            label: 'Optimized',
+            backgroundColor: '#B300B3',
+            pointRadius: 2
+          }
+        ]
+      },
       options: {
         scales: {
           xAxes: [

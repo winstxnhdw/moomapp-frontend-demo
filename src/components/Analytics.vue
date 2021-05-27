@@ -27,6 +27,7 @@
           <v-card flat min-height="100vh">
             <Sliders />
             <ConfigFields />
+            <OptimiseBtn />
           </v-card>
         </v-container>
       </v-tab-item>
@@ -45,6 +46,7 @@ import AnalysisChart from './AnalysisChart'
 import Configuration from './Configuration'
 import Sliders from './Sliders'
 import ConfigFields from './ConfigFields'
+import OptimiseBtn from './OptimiseBtn'
 
 export default {
   name: 'Analytics',
@@ -59,7 +61,8 @@ export default {
     AnalysisChart,
     Configuration,
     Sliders,
-    ConfigFields
+    ConfigFields,
+    OptimiseBtn
   }
 }
 </script>

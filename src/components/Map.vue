@@ -64,9 +64,6 @@
         <v-btn outlined class="buttons" @click="modeSwitch">
           {{ mode }}
         </v-btn>
-        <v-btn outlined class="buttons" :loading="isLoading" @click="optimiseWaypoints">
-          Optimize
-        </v-btn>
       </l-control>
     </l-map>
   </div>
@@ -96,7 +93,6 @@ export default {
       oldMarkerPos: [],
       oldClickedMarkerPos: null,
       mode: 'Create Mode',
-      isLoading: false,
 
       minZoom: 0,
       maxZoom: 4,
@@ -254,50 +250,6 @@ export default {
       this.$refs.zoomBar.zoomUpdate(zoom)
     },
 
-    optimiseWaypoints() {
-      this.isLoading = true
-      let x = []
-      let y = []
-      let unoptimisedCurvature = []
-      let optimisedCurvature = []
-
-      this.optimisedMarkers = []
-
-      this.selectedMarkers.forEach((dummy, id) => {
-        x.push(this.selectedMarkers[id].lng)
-        y.push(this.selectedMarkers[id].lat)
-      })
-
-      let params = {
-        x: x,
-        y: y,
-        maxlatdev: this.sliders.maxlatdev,
-        safetythresh: this.sliders.safetythresh,
-        weights: this.sliders.weights,
-        width: this.fields.width
-      }
-
-      getAPI
-        .post('/optimise', params)
-        .then(response => {
-          this.optimisedMarkers = []
-          response.data['x'].forEach((dummy, id) => {
-            let newLat = response.data['y'][id]
-            let newLng = response.data['x'][id]
-            let newLatLng = { lat: newLat, lng: newLng }
-            this.optimisedMarkers.push(newLatLng)
-            unoptimisedCurvature.push(response.data['wk'][id])
-            optimisedCurvature.push(response.data['ok'][id])
-          })
-          let curvatures = { unoptimised: unoptimisedCurvature, optimised: optimisedCurvature }
-          eventBus.$emit('curvatures', curvatures)
-          this.isLoading = false
-        })
-        .catch(error => {
-          console.log(error)
-        })
-    },
-
     keyPress(event) {
       if (event.originalEvent.key == 'c') {
         this.modeSwitch()
@@ -357,6 +309,49 @@ export default {
             let newLatLng = { lat: newLat, lng: newLng }
             this.markers.push(newLatLng)
           })
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    })
+
+    eventBus.$on('optimise', () => {
+      let x = []
+      let y = []
+      let unoptimisedCurvature = []
+      let optimisedCurvature = []
+
+      this.optimisedMarkers = []
+
+      this.selectedMarkers.forEach((dummy, id) => {
+        x.push(this.selectedMarkers[id].lng)
+        y.push(this.selectedMarkers[id].lat)
+      })
+
+      let params = {
+        x: x,
+        y: y,
+        maxlatdev: this.sliders.maxlatdev,
+        safetythresh: this.sliders.safetythresh,
+        weights: this.sliders.weights,
+        width: this.fields.width
+      }
+
+      getAPI
+        .post('/optimise', params)
+        .then(response => {
+          this.optimisedMarkers = []
+          response.data['x'].forEach((dummy, id) => {
+            let newLat = response.data['y'][id]
+            let newLng = response.data['x'][id]
+            let newLatLng = { lat: newLat, lng: newLng }
+            this.optimisedMarkers.push(newLatLng)
+            unoptimisedCurvature.push(response.data['wk'][id])
+            optimisedCurvature.push(response.data['ok'][id])
+          })
+          let curvatures = { unoptimised: unoptimisedCurvature, optimised: optimisedCurvature }
+          eventBus.$emit('curvatures', curvatures)
+          eventBus.$emit('notLoading')
         })
         .catch(error => {
           console.log(error)
