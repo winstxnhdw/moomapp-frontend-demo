@@ -55,7 +55,7 @@
           :key="id"
           :draggable="draggable"
           :lat-lng="marker"
-          :icon="icon"
+          :icon="iconOptimised"
         >
         </l-marker>
       </l-layer-group>
@@ -114,11 +114,20 @@ export default {
         shadowAnchor: [10, 10]
       }),
 
-      icon_selected: L.icon({
+      iconSelected: L.icon({
         iconUrl: require('/src/assets/marker_selected.svg'),
         iconSize: [5, 5],
         iconAnchor: [2.5, 2.5],
         shadowUrl: require('/src/assets/s_marker_selected.svg'),
+        shadowSize: [20, 20],
+        shadowAnchor: [10, 10]
+      }),
+
+      iconOptimised: L.icon({
+        iconUrl: require('/src/assets/marker_optimised.svg'),
+        iconSize: [5, 5],
+        iconAnchor: [2.5, 2.5],
+        shadowUrl: require('/src/assets/s_marker_optimised.svg'),
         shadowSize: [20, 20],
         shadowAnchor: [10, 10]
       }),
@@ -268,6 +277,10 @@ export default {
           indices.forEach((dummy, id) => {
             this.interpolate.splice(indices[id], 1)
             this.markers.splice(indices[id], 1)
+
+            this.selectedMarkersId = []
+            this.selectedMarkers = []
+            this.mode = 'Create Mode'
           })
         }
       }
@@ -417,7 +430,7 @@ export default {
         // Visualise selected markers
         this.selectedMarkersId.forEach((dummy, id) => {
           let selectedMarker = this.selectedMarkersId[id]
-          this.$refs.myMarkers[selectedMarker].mapObject.setIcon(this.icon_selected)
+          this.$refs.myMarkers[selectedMarker].mapObject.setIcon(this.iconSelected)
           this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(0.7)
         })
 
