@@ -75,7 +75,6 @@ export default {
 
   mounted() {
     eventBus.$on('curvatures', data => {
-      console.log(data['unoptimised '])
       this.fillData(data['unoptimised'], data['optimised'])
     })
   }

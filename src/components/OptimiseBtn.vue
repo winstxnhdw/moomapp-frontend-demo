@@ -33,6 +33,11 @@ export default {
       this.isLoading = false
       this.isDisabled = false
     })
+
+    eventBus.$on('cancel', () => {
+      this.isLoading = false
+      this.isDisabled = true
+    })
   }
 }
 </script>

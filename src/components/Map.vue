@@ -354,6 +354,7 @@ export default {
           eventBus.$emit('notLoading')
         })
         .catch(error => {
+          eventBus.$emit('cancel')
           console.log(error)
         })
     })
