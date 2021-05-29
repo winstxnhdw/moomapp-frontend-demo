@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-card-text class="text-center">Path Curvature Comparison</v-card-text>
-    <line-chart :chart-data="datacollection" :options="options"></line-chart>
+    <line-chart ref="lineChart" :chart-data="datacollection" :options="options"></line-chart>
   </div>
 </template>
 
@@ -18,7 +18,7 @@ export default {
           {
             label: 'Unoptimized',
             backgroundColor: '#EF6C00',
-            pointRadius: 2
+            pointRadius: 0
           },
           {
             label: 'Optimized',
@@ -52,21 +52,25 @@ export default {
         .map((_, idx) => start + idx)
     },
 
+    updateChart() {
+      setTimeout(() => this.$refs.lineChart.renderChart(this.datacollection, this.options))
+    },
+
     fillData(unoptimisedCurvature, optimisedCurvature) {
       this.datacollection = {
         labels: this.range(0, unoptimisedCurvature.length),
         datasets: [
           {
-            label: 'Unoptimized',
-            backgroundColor: '#EF6C00',
-            data: unoptimisedCurvature,
-            pointRadius: 2
+            label: this.datacollection.datasets[0].label,
+            backgroundColor: this.datacollection.datasets[0].backgroundColor,
+            pointRadius: this.datacollection.datasets[0].pointRadius,
+            data: unoptimisedCurvature
           },
           {
-            label: 'Optimized',
-            backgroundColor: '#B300B3',
-            data: optimisedCurvature,
-            pointRadius: 2
+            label: this.datacollection.datasets[1].label,
+            backgroundColor: this.datacollection.datasets[1].backgroundColor,
+            pointRadius: this.datacollection.datasets[1].pointRadius,
+            data: optimisedCurvature
           }
         ]
       }

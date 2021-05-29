@@ -2,7 +2,7 @@
   <div>
     <v-tabs fixed-tabs dark v-model="tab">
       <v-tabs-slider></v-tabs-slider>
-      <v-tab href="#analysis">
+      <v-tab href="#analysis" @change="updateChart">
         Analysis
       </v-tab>
       <v-tab href="#optimization">
@@ -17,7 +17,7 @@
       <v-tab-item :key="1" value="analysis">
         <v-container>
           <v-card flat height="100vh">
-            <AnalysisChart />
+            <AnalysisChart ref="analysisChart" />
           </v-card>
         </v-container>
       </v-tab-item>
@@ -63,6 +63,12 @@ export default {
     Sliders,
     ConfigFields,
     OptimiseBtn
+  },
+
+  methods: {
+    updateChart() {
+      this.$refs.analysisChart.updateChart()
+    }
   }
 }
 </script>
