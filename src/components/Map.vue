@@ -27,12 +27,14 @@
       <l-image-overlay :url="url" :bounds="bounds" />
 
       <l-polyline
-        :lat-lngs="interpolate"
+        :lat-lngs="polyline.array"
         :color="polyline.color"
         :opacity="polyline.opacity"
         :dashArray="polyline.dashArray"
         :weight="polyline.weight"
       />
+
+      <l-polyline :lat-lngs="optimisedPath.array" :color="optimisedPath.color" :weight="optimisedPath.weight" />
 
       <l-layer-group layerType="overlay" name="Markers">
         <l-marker
@@ -47,17 +49,6 @@
           @dragstart="dragStart($event, index)"
           @dragend="dragEnd($event, index)"
         ></l-marker>
-      </l-layer-group>
-
-      <l-layer-group layerType="overlay" name="Optimised Markers">
-        <l-marker
-          v-for="(marker, id) in optimisedMarkers"
-          :key="id"
-          :draggable="draggable"
-          :lat-lng="marker"
-          :icon="iconOptimised"
-        >
-        </l-marker>
       </l-layer-group>
 
       <l-control position="bottomright">
@@ -86,10 +77,8 @@ export default {
     return {
       csv: null,
       markers: [],
-      optimisedMarkers: [],
       selectedMarkersId: [],
       selectedMarkers: [],
-      interpolate: [],
       oldMarkerPos: [],
       oldClickedMarkerPos: null,
       mode: 'Create Mode',
@@ -133,10 +122,17 @@ export default {
       }),
 
       polyline: {
+        array: [],
         color: '#FFF',
         opacity: 0.6,
         dashArray: '5, 10',
         weight: 1
+      },
+
+      optimisedPath: {
+        array: [],
+        color: '#FFB400',
+        weight: 2
       },
 
       sliders: {
@@ -166,11 +162,17 @@ export default {
   methods: {
     // General functions
     resetHighlight() {
-      this.selectedMarkersId.forEach((dummy, id) => {
-        let selectedMarker = this.selectedMarkersId[id]
-        this.$refs.myMarkers[selectedMarker].mapObject.setIcon(this.icon)
-        this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(1)
-      })
+      if (this.mode == 'Create Mode') {
+        this.selectedMarkersId.forEach((dummy, id) => {
+          let selectedMarker = this.selectedMarkersId[id]
+          this.$refs.myMarkers[selectedMarker].mapObject.setIcon(this.icon)
+          this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(1)
+        })
+      }
+    },
+
+    setLatLng(newLat, newLng) {
+      return { lat: newLat, lng: newLng }
     },
 
     // Event handlers
@@ -188,14 +190,14 @@ export default {
     deleteMarker(event, index) {
       if (this.mode == 'Delete Mode') {
         this.markers.splice(index, 1)
-        this.interpolate.splice(index, 1)
+        this.polyline.array.splice(index, 1)
       }
     },
 
     createMarker(event) {
       if (this.mode == 'Create Mode') {
         this.markers.push(event.latlng)
-        this.interpolate.push([event.latlng.lat, event.latlng.lng])
+        this.polyline.array.push(event.latlng)
       }
     },
 
@@ -230,15 +232,15 @@ export default {
           let selectedMarker = this.selectedMarkersId[id]
           let newLat = this.oldMarkerPos[id][0] + delta_lat
           let newLng = this.oldMarkerPos[id][1] + delta_lng
-          let newLatLng = { lat: newLat, lng: newLng }
-          this.interpolate[selectedMarker][0] = newLat
-          this.interpolate[selectedMarker][1] = newLng
+          let newLatLng = this.setLatLng(newLat, newLng)
+          this.polyline.array[selectedMarker] = newLatLng
           this.markers.splice(selectedMarker, 1, newLatLng)
         })
-        this.interpolate.splice() // Refreshes the polyline path
+        this.polyline.array.splice() // Refreshes the polyline path
       } else {
         this.mode = 'Drag Mode'
-        this.interpolate.splice(index, 1, [event.latlng.lat, event.latlng.lng])
+        let newLatLng = this.setLatLng(event.latlng.lat, event.latlng.lng)
+        this.polyline.array.splice(index, 1, newLatLng)
       }
     },
 
@@ -265,17 +267,17 @@ export default {
       } else if (event.originalEvent.key == 'z') {
         this.resetHighlight()
         this.markers.pop()
-        this.interpolate.pop()
+        this.polyline.array.pop()
       } else if (event.originalEvent.key == 'x') {
         if (this.mode != 'Select Mode') {
           this.markers = []
-          this.interpolate = []
+          this.polyline.array = []
         } else {
           this.resetHighlight()
           let indices = this.selectedMarkersId.reverse()
 
           indices.forEach((dummy, id) => {
-            this.interpolate.splice(indices[id], 1)
+            this.polyline.array.splice(indices[id], 1)
             this.markers.splice(indices[id], 1)
 
             this.selectedMarkersId = []
@@ -284,16 +286,6 @@ export default {
           })
         }
       }
-    }
-  },
-
-  computed: {
-    dynamicSize() {
-      return [this.iconSize, this.iconSize * 1.15]
-    },
-
-    dynamicAnchor() {
-      return [this.iconSize / 2, this.iconSize * 1.15]
     }
   },
 
@@ -319,8 +311,8 @@ export default {
           response.data['2.0']['1']['x'].forEach((dummy, id) => {
             let newLng = response.data['2.0']['1']['x'][id]
             let newLat = response.data['2.0']['1']['y'][id]
-            let newLatLng = { lat: newLat, lng: newLng }
-            this.markers.push(newLatLng)
+            this.markers.push(this.setLatLng(newLat, newLng))
+            this.polyline.array.push(this.setLatLng(newLat, newLng))
           })
         })
         .catch(error => {
@@ -333,8 +325,6 @@ export default {
       let y = []
       let unoptimisedCurvature = []
       let optimisedCurvature = []
-
-      this.optimisedMarkers = []
 
       this.selectedMarkers.forEach((dummy, id) => {
         x.push(this.selectedMarkers[id].lng)
@@ -353,12 +343,12 @@ export default {
       getAPI
         .post('/optimise', params)
         .then(response => {
-          this.optimisedMarkers = []
+          this.optimisedPath.array = []
+
           response.data['x'].forEach((dummy, id) => {
             let newLat = response.data['y'][id]
             let newLng = response.data['x'][id]
-            let newLatLng = { lat: newLat, lng: newLng }
-            this.optimisedMarkers.push(newLatLng)
+            this.optimisedPath.array.push(this.setLatLng(newLat, newLng))
             unoptimisedCurvature.push(response.data['wk'][id])
             optimisedCurvature.push(response.data['ok'][id])
           })
