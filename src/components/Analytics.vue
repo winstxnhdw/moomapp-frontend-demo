@@ -52,7 +52,7 @@ export default {
   name: 'Analytics',
   data() {
     return {
-      tab: 'analysis',
+      tab: 'configuration',
       datacollection: {}
     }
   },
