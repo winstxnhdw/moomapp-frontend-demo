@@ -3,8 +3,8 @@
     <v-btn align="center" class="mt-8 centreButton" :loading="isLoading" @click="echoOptimise">
       Optimize
     </v-btn>
-    <v-btn align="center" class="mt-2 centreButton" :disabled="isDisabled" @click="echoOptimise">
-      Confirm
+    <v-btn align="center" class="mt-2 centreButton" :disabled="isDisabled" @click="clearOptimisedPath">
+      Clear
     </v-btn>
   </div>
 </template>
@@ -26,6 +26,11 @@ export default {
     echoOptimise() {
       this.isLoading = true
       eventBus.$emit('optimise')
+    },
+
+    clearOptimisedPath() {
+      this.isDisabled = true
+      eventBus.$emit('clearOptimisedPath')
     }
   },
   mounted() {

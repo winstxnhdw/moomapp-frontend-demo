@@ -24,17 +24,21 @@
       @click="createMarker"
     >
       <l-control-layers position="topleft"></l-control-layers>
-      <l-image-overlay :url="url" :bounds="bounds" />
+      <l-layer-group layerType="overlay" name="Map">
+        <l-image-overlay :url="url" :bounds="bounds" />
+      </l-layer-group>
 
-      <l-polyline
-        :lat-lngs="polyline.array"
-        :color="polyline.color"
-        :opacity="polyline.opacity"
-        :dashArray="polyline.dashArray"
-        :weight="polyline.weight"
-      />
+      <l-layer-group layerType="overlay" name="Paths">
+        <l-polyline
+          :lat-lngs="polyline.array"
+          :color="polyline.color"
+          :opacity="polyline.opacity"
+          :dashArray="polyline.dashArray"
+          :weight="polyline.weight"
+        />
 
-      <l-polyline :lat-lngs="optimisedPath.array" :color="optimisedPath.color" :weight="optimisedPath.weight" />
+        <l-polyline :lat-lngs="optimisedPath.array" :color="optimisedPath.color" :weight="optimisedPath.weight" />
+      </l-layer-group>
 
       <l-layer-group layerType="overlay" name="Markers">
         <l-marker
@@ -135,6 +139,13 @@ export default {
         weight: 2
       },
 
+      curbs: {
+        color: 'white',
+        opacity: 0.6,
+        weight: 1,
+        created: false
+      },
+
       sliders: {
         maxlatdev: 0.5,
         safetythresh: 0.5,
@@ -162,7 +173,7 @@ export default {
   methods: {
     // General functions
     resetHighlight() {
-      if (this.mode == 'Create Mode') {
+      if (this.selectedMarkersId.length != 0) {
         this.selectedMarkersId.forEach((dummy, id) => {
           let selectedMarker = this.selectedMarkersId[id]
           this.$refs.myMarkers[selectedMarker].mapObject.setIcon(this.icon)
@@ -171,8 +182,22 @@ export default {
       }
     },
 
+    clearSelectedMarkers() {
+      this.resetHighlight()
+      this.selectedMarkersId = []
+      this.selectedMarkers = []
+    },
+
     setLatLng(newLat, newLng) {
       return { lat: newLat, lng: newLng }
+    },
+
+    drawCurbs(curbs) {
+      const map = this.$refs.myMap.mapObject
+      if (this.curbs.created == false) {
+        L.polyline(curbs, this.curbs).addTo(map)
+        this.curbs.created = true
+      }
     },
 
     // Event handlers
@@ -273,17 +298,14 @@ export default {
           this.markers = []
           this.polyline.array = []
         } else {
-          this.resetHighlight()
           let indices = this.selectedMarkersId.reverse()
+          this.mode = 'Create Mode'
 
           indices.forEach((dummy, id) => {
             this.polyline.array.splice(indices[id], 1)
             this.markers.splice(indices[id], 1)
-
-            this.selectedMarkersId = []
-            this.selectedMarkers = []
-            this.mode = 'Create Mode'
           })
+          this.clearSelectedMarkers()
         }
       }
     }
@@ -308,12 +330,26 @@ export default {
         .then(response => {
           // x: longitude, y: lattitude
           this.markers = []
+          this.polyline.array = []
+          let curbs = []
+
           response.data['2.0']['1']['x'].forEach((dummy, id) => {
             let newLng = response.data['2.0']['1']['x'][id]
             let newLat = response.data['2.0']['1']['y'][id]
             this.markers.push(this.setLatLng(newLat, newLng))
             this.polyline.array.push(this.setLatLng(newLat, newLng))
           })
+          Object.entries(response.data['curbs']).forEach((dummy, id) => {
+            let curb = []
+            response.data['curbs'][id]['x'].forEach((dummy, i) => {
+              let newLng = response.data['curbs'][id]['x'][i]
+              let newLat = response.data['curbs'][id]['y'][i]
+              let newLatLng = [newLat, newLng]
+              curb.push(newLatLng)
+            })
+            curbs.push(curb)
+          })
+          this.drawCurbs(curbs)
         })
         .catch(error => {
           console.log(error)
@@ -353,6 +389,7 @@ export default {
             optimisedCurvature.push(response.data['ok'][id])
           })
           let curvatures = { unoptimised: unoptimisedCurvature, optimised: optimisedCurvature }
+          this.$store.commit('chart/setCurvatures')
           eventBus.$emit('curvatures', curvatures)
           eventBus.$emit('notLoading')
         })
@@ -360,6 +397,10 @@ export default {
           eventBus.$emit('cancel')
           console.log(error)
         })
+    })
+
+    eventBus.$on('clearOptimisedPath', () => {
+      this.optimisedPath.array = []
     })
 
     eventBus.$on('slider1', data => {
@@ -397,9 +438,7 @@ export default {
       map.on(window.L.Draw.Event.CREATED, e => {
         let layer = e.layer
         let type = e.layerType
-        this.resetHighlight()
-        this.selectedMarkers = []
-        this.selectedMarkersId = []
+        this.clearSelectedMarkers()
 
         if (type === 'rectangle') {
           this.markers.forEach((dummy, id) => {

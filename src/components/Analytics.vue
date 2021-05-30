@@ -2,7 +2,7 @@
   <div>
     <v-tabs fixed-tabs dark v-model="tab">
       <v-tabs-slider></v-tabs-slider>
-      <v-tab href="#analysis" @change="updateChart">
+      <v-tab href="#analysis" @change="animateChart">
         Analysis
       </v-tab>
       <v-tab href="#optimization">
@@ -66,8 +66,8 @@ export default {
   },
 
   methods: {
-    updateChart() {
-      this.$refs.analysisChart.updateChart()
+    animateChart() {
+      setTimeout(() => this.$refs.analysisChart.updateChart())
     }
   }
 }

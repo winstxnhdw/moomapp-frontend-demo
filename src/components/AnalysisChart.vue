@@ -53,7 +53,7 @@ export default {
     },
 
     updateChart() {
-      setTimeout(() => this.$refs.lineChart.renderChart(this.datacollection, this.options))
+      this.$refs.lineChart.renderChart(this.datacollection, this.options)
     },
 
     fillData(unoptimisedCurvature, optimisedCurvature) {
@@ -78,6 +78,14 @@ export default {
   },
 
   mounted() {
+    this.$store.watch(
+      function(state) {
+        return state.curvatures
+      },
+      function() {
+        console.log('test')
+      }
+    )
     eventBus.$on('curvatures', data => {
       this.fillData(data['unoptimised'], data['optimised'])
     })
