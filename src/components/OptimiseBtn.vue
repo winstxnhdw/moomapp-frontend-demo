@@ -24,6 +24,7 @@ export default {
 
   methods: {
     echoOptimise() {
+      this.isDisabled = true
       this.isLoading = true
       eventBus.$emit('optimise')
     },
