@@ -148,8 +148,8 @@ export default {
 
       routes: {
         color: 'red',
-        opacity: 1,
-        weight: 1,
+        opacity: 0.5,
+        weight: 5,
         created: false
       },
 
