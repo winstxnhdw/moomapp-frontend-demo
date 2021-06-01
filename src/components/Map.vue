@@ -40,7 +40,7 @@
         <l-polyline :lat-lngs="optimisedPath.array" :color="optimisedPath.color" :weight="optimisedPath.weight" />
       </l-layer-group>
 
-      <l-layer-group layerType="overlay" name="Markers">
+      <l-layer-group layerType="overlay" name="Waypoints">
         <l-marker
           ref="myMarkers"
           v-for="(marker, index) in markers"
@@ -146,6 +146,13 @@ export default {
         created: false
       },
 
+      routes: {
+        color: 'red',
+        opacity: 1,
+        weight: 1,
+        created: false
+      },
+
       sliders: {
         maxlatdev: 0.5,
         safetythresh: 0.5,
@@ -192,11 +199,22 @@ export default {
       return { lat: newLat, lng: newLng }
     },
 
-    drawCurbs(curbs) {
-      const map = this.$refs.myMap.mapObject
+    drawCurbs(curbs, curb_markers) {
       if (this.curbs.created == false) {
+        const map = this.$refs.myMap.mapObject
         L.polyline(curbs, this.curbs).addTo(map)
+        console.log(curb_markers)
+        // curb_markers.forEach((dummy, id) => {
+        //   L.marker(curb_markers[id], { icon: this.iconOptimised }).addTo(map)
+        // })
         this.curbs.created = true
+      }
+    },
+
+    drawRoutes(laneArray) {
+      if (this.routes.created == false) {
+        const map = this.$refs.myMap.mapObject
+        L.polyline(laneArray, this.routes).addTo(map)
       }
     },
 
@@ -331,25 +349,47 @@ export default {
           // x: longitude, y: lattitude
           this.markers = []
           this.polyline.array = []
+          let curb_markers = []
           let curbs = []
 
-          response.data['2.0']['1']['x'].forEach((dummy, id) => {
-            let newLng = response.data['2.0']['1']['x'][id]
-            let newLat = response.data['2.0']['1']['y'][id]
-            this.markers.push(this.setLatLng(newLat, newLng))
-            this.polyline.array.push(this.setLatLng(newLat, newLng))
-          })
-          Object.entries(response.data['curbs']).forEach((dummy, id) => {
+          let waypointsData = response.data['waypoints']
+          let curbsData = response.data['curbs']
+
+          // Import waypoints
+          // response.data['waypoints']['2.0']['1']['x'].forEach((dummy, id) => {
+          //   let newLng = response.data['waypoints']['2.0']['1']['x'][id]
+          //   let newLat = response.data['waypoints']['2.0']['1']['y'][id]
+          //   this.markers.push(this.setLatLng(newLat, newLng))
+          //   this.polyline.array.push(this.setLatLng(newLat, newLng))
+          // })
+
+          for (let csv in waypointsData) {
+            for (let laneInd in waypointsData[csv]) {
+              let laneArray = []
+
+              waypointsData[csv][laneInd]['x'].forEach((dummy, id) => {
+                let newLng = waypointsData[csv][laneInd]['x'][id]
+                let newLat = waypointsData[csv][laneInd]['y'][id]
+                laneArray.push(this.setLatLng(newLat, newLng))
+              })
+              this.drawRoutes(laneArray)
+            }
+          }
+          this.routes.created = true
+
+          // Import curbs
+          Object.entries(curbsData).forEach((dummy, id) => {
             let curb = []
             response.data['curbs'][id]['x'].forEach((dummy, i) => {
               let newLng = response.data['curbs'][id]['x'][i]
               let newLat = response.data['curbs'][id]['y'][i]
               let newLatLng = [newLat, newLng]
+              curb_markers.push(this.setLatLng(newLat, newLng))
               curb.push(newLatLng)
             })
             curbs.push(curb)
           })
-          this.drawCurbs(curbs)
+          this.drawCurbs(curbs, curb_markers)
         })
         .catch(error => {
           console.log(error)

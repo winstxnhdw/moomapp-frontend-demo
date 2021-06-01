@@ -1,7 +1,6 @@
 <template>
   <div>
-    <v-card-text class="text-center">Path Curvature Comparison</v-card-text>
-    <line-chart ref="lineChart" :chart-data="datacollection" :options="options"></line-chart>
+    <line-chart class="pt-5" ref="lineChart" :chart-data="datacollection" :options="options"></line-chart>
   </div>
 </template>
 
@@ -36,6 +35,14 @@ export default {
               }
             }
           ]
+        },
+        legend: {
+          position: 'bottom'
+        },
+        title: {
+          display: true,
+          position: 'top',
+          text: 'Path Curvature Comparison'
         }
       }
     }
