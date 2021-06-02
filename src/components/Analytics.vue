@@ -24,7 +24,7 @@
 
       <v-tab-item :key="2" value="optimization">
         <v-container>
-          <v-card flat min-height="91.1vh">
+          <v-card flat min-height="91.2vh">
             <Sliders />
             <ConfigFields />
             <OptimiseBtn />
