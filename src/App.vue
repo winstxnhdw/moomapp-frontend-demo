@@ -7,14 +7,11 @@
         <Mobile v-if="isMobile()" />
 
         <div v-else>
-          <v-row no-gutters>
-            <v-col cols="3">
-              <Analytics />
-            </v-col>
-            <v-col cols="9">
-              <Map v-if="loadMap" />
-            </v-col>
-          </v-row>
+          <v-navigation-drawer app fixed permanent left hide-overlay width="30%" class="pa-0 ma-0">
+            <Analytics />
+          </v-navigation-drawer>
+
+          <Map v-if="loadMap" />
           <SplashScreen id="SplashScreen" />
         </div>
       </v-main>
@@ -69,6 +66,11 @@ export default {
 </script>
 
 <style>
+v-navigation-drawer__content {
+  height: 100%;
+  overflow-y: hidden !important;
+  overflow-x: hidden;
+}
 #app {
   background-color: rgb(0, 0, 0);
   position: fixed;

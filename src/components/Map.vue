@@ -5,6 +5,7 @@
 
     <l-map
       ref="myMap"
+      id="leafletMap"
       v-on:keydown="keyPress"
       :options="{
         attributionControl: false,
@@ -356,12 +357,12 @@ export default {
           let curbsData = response.data['curbs']
 
           // Import waypoints
-          // response.data['waypoints']['2.0']['1']['x'].forEach((dummy, id) => {
-          //   let newLng = response.data['waypoints']['2.0']['1']['x'][id]
-          //   let newLat = response.data['waypoints']['2.0']['1']['y'][id]
-          //   this.markers.push(this.setLatLng(newLat, newLng))
-          //   this.polyline.array.push(this.setLatLng(newLat, newLng))
-          // })
+          response.data['waypoints']['2.0']['1']['x'].forEach((dummy, id) => {
+            let newLng = response.data['waypoints']['2.0']['1']['x'][id]
+            let newLat = response.data['waypoints']['2.0']['1']['y'][id]
+            this.markers.push(this.setLatLng(newLat, newLng))
+            this.polyline.array.push(this.setLatLng(newLat, newLng))
+          })
 
           for (let csv in waypointsData) {
             for (let laneInd in waypointsData[csv]) {
@@ -542,6 +543,11 @@ export default {
 #map {
   position: fixed;
   height: 100%;
-  width: 75%;
+  width: 100%;
+}
+
+#leafletMap {
+  height: 100%;
+  width: 100%;
 }
 </style>

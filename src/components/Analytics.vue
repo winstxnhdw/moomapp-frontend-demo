@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-tabs fixed-tabs dark v-model="tab">
+    <v-tabs rounded fixed-tabs dark v-model="tab">
       <v-tabs-slider></v-tabs-slider>
       <v-tab href="#analysis" @change="animateChart">
         Analysis
@@ -16,7 +16,7 @@
     <v-tabs-items dark class="tabs" v-model="tab">
       <v-tab-item :key="1" value="analysis">
         <v-container>
-          <v-card flat height="100vh">
+          <v-card flat height="92.4vh">
             <AnalysisChart ref="analysisChart" />
           </v-card>
         </v-container>
@@ -24,7 +24,7 @@
 
       <v-tab-item :key="2" value="optimization">
         <v-container>
-          <v-card flat min-height="100vh">
+          <v-card flat min-height="92.4vh">
             <Sliders />
             <ConfigFields />
             <OptimiseBtn />
@@ -34,7 +34,9 @@
 
       <v-tab-item :key="3" value="configuration">
         <v-container>
-          <Configuration />
+          <v-card flat min-height="92.4vh">
+            <Configuration />
+          </v-card>
         </v-container>
       </v-tab-item>
     </v-tabs-items>
