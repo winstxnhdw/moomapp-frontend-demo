@@ -32,9 +32,7 @@ export default {
           duration: 1
         }
       )
-      setTimeout(() => {
-        this.begin = true
-      }, 2000)
+      this.begin = true
     },
 
     beginFast() {

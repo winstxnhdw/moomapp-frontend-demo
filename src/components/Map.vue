@@ -62,7 +62,7 @@
       </l-control>
       <l-control position="bottomleft">
         <v-btn outlined class="buttons" @click="toggleAnalytics">
-          {{ this.drawer.label }}
+          {{ this.drawerLabel }}
         </v-btn>
       </l-control>
     </l-map>
@@ -81,6 +81,17 @@ import gsap from 'gsap'
 
 export default {
   name: 'Map',
+
+  props: {
+    drawerState: {
+      type: Boolean,
+      required: true
+    },
+    drawerLabel: {
+      type: String,
+      required: true
+    }
+  },
 
   data() {
     return {
@@ -166,11 +177,6 @@ export default {
 
       fields: {
         width: 2.0
-      },
-
-      drawer: {
-        label: 'show',
-        state: false
       }
     }
   },
@@ -242,16 +248,12 @@ export default {
 
     toggleAnalytics() {
       // Open
-      if (this.drawer.state == true) {
-        this.drawer.state = !this.drawer.state
-        this.$emit('toggle-analytics', this.drawer.state)
-        this.drawer.label = 'Show'
+      if (this.drawerState == true) {
+        this.$emit('toggle-sidebar')
       }
       // Close
       else {
-        this.drawer.state = !this.drawer.state
-        this.$emit('toggle-analytics', this.drawer.state)
-        this.drawer.label = 'Hide'
+        this.$emit('toggle-sidebar')
       }
 
       const map = this.$refs.myMap.mapObject
@@ -333,7 +335,6 @@ export default {
     },
 
     keyPress(event) {
-      console.log(event)
       if (event.originalEvent.key == 'c') {
         this.modeSwitch()
       } else if (event.originalEvent.key == 'z') {
@@ -354,8 +355,6 @@ export default {
           })
           this.clearSelectedMarkers()
         }
-      } else if (event.originalEvent.key == 'Enter') {
-        this.toggleAnalytics()
       }
     }
   },

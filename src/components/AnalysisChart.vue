@@ -42,7 +42,7 @@ export default {
         title: {
           display: true,
           position: 'top',
-          text: 'Path Curvature Comparison'
+          text: 'Path Curvature Analysis'
         }
       }
     }
