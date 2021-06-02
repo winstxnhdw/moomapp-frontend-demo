@@ -5,8 +5,6 @@
 
     <l-map
       ref="myMap"
-      id="leafletMap"
-      v-on:keydown="keyPress"
       :options="{
         attributionControl: false,
         zoomControl: false,
@@ -23,6 +21,7 @@
       :maxBoundsViscosity="0.9"
       @update:zoom="zoomBarUpdate"
       @click="createMarker"
+      @keydown="keyPress"
     >
       <l-control-layers position="topleft"></l-control-layers>
       <l-layer-group layerType="overlay" name="Map">
@@ -59,6 +58,11 @@
       <l-control position="bottomright">
         <v-btn outlined class="buttons" @click="modeSwitch">
           {{ mode }}
+        </v-btn>
+      </l-control>
+      <l-control position="bottomleft">
+        <v-btn outlined class="buttons" @click="toggleAnalytics">
+          {{ this.drawer.label }}
         </v-btn>
       </l-control>
     </l-map>
@@ -162,6 +166,11 @@ export default {
 
       fields: {
         width: 2.0
+      },
+
+      drawer: {
+        label: 'show',
+        state: false
       }
     }
   },
@@ -229,6 +238,24 @@ export default {
       } else {
         this.mode = 'Create Mode'
       }
+    },
+
+    toggleAnalytics() {
+      // Open
+      if (this.drawer.state == true) {
+        this.drawer.state = !this.drawer.state
+        this.$emit('toggle-analytics', this.drawer.state)
+        this.drawer.label = 'Show'
+      }
+      // Close
+      else {
+        this.drawer.state = !this.drawer.state
+        this.$emit('toggle-analytics', this.drawer.state)
+        this.drawer.label = 'Hide'
+      }
+
+      const map = this.$refs.myMap.mapObject
+      map.invalidateSize()
     },
 
     deleteMarker(event, index) {
@@ -306,6 +333,7 @@ export default {
     },
 
     keyPress(event) {
+      console.log(event)
       if (event.originalEvent.key == 'c') {
         this.modeSwitch()
       } else if (event.originalEvent.key == 'z') {
@@ -326,6 +354,8 @@ export default {
           })
           this.clearSelectedMarkers()
         }
+      } else if (event.originalEvent.key == 'Enter') {
+        this.toggleAnalytics()
       }
     }
   },
@@ -459,6 +489,9 @@ export default {
 
     this.$nextTick(() => {
       const map = this.$refs.myMap.mapObject
+      setTimeout(function() {
+        map.invalidateSize()
+      }, 400)
       const drawControl = new window.L.Control.Draw({
         position: 'topleft',
         draw: {
@@ -541,12 +574,7 @@ export default {
 }
 
 #map {
-  position: fixed;
-  height: 100%;
-  width: 100%;
-}
-
-#leafletMap {
+  position: absolute;
   height: 100%;
   width: 100%;
 }

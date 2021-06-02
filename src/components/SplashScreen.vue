@@ -104,7 +104,7 @@ export default {
   position: fixed;
   height: 100vh;
   width: 100vw;
-  opacity: 0.9;
+  opacity: 0.8;
   background-color: black;
   margin: 0;
   top: 50%;

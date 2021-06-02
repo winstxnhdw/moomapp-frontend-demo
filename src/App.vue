@@ -7,11 +7,11 @@
         <Mobile v-if="isMobile()" />
 
         <div v-else>
-          <v-navigation-drawer app fixed permanent left hide-overlay width="30%" class="pa-0 ma-0">
+          <v-navigation-drawer app fixed left hide-overlay width="30%" v-model="drawerState" class="pa-0 ma-0">
             <Analytics />
           </v-navigation-drawer>
 
-          <Map v-if="loadMap" />
+          <Map v-if="loadMap" @toggle-analytics="toggleDrawer" />
           <SplashScreen id="SplashScreen" />
         </div>
       </v-main>
@@ -39,7 +39,8 @@ export default {
   data() {
     return {
       isLoading: true,
-      loadMap: false
+      loadMap: false,
+      drawerState: false
     }
   },
 
@@ -50,6 +51,10 @@ export default {
       } else {
         return false
       }
+    },
+
+    toggleDrawer(drawerState) {
+      this.drawerState = drawerState
     }
   },
 
