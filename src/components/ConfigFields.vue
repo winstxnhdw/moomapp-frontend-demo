@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <v-card-text>{{ field1.label }}</v-card-text>
+  <v-card class="pa-3 mt-3">
+    <v-card-text class="noselect">{{ field1.label }}</v-card-text>
     <v-text-field
       v-model="field1.val"
       class="mt-0 pt-0 pl-3 fieldText"
@@ -10,7 +10,7 @@
       :min="field1.min"
       :max="field1.max"
     ></v-text-field>
-  </div>
+  </v-card>
 </template>
 
 <script>

@@ -77,7 +77,6 @@ import { getAPI } from '@/axios'
 import { LMap, LMarker, LControl, LPolyline, LImageOverlay, LControlLayers, LLayerGroup } from 'vue2-leaflet'
 import L from 'leaflet'
 import 'leaflet-draw'
-import gsap from 'gsap'
 
 export default {
   name: 'Map',
@@ -360,18 +359,6 @@ export default {
   },
 
   mounted() {
-    gsap.fromTo(
-      '#map',
-      {
-        opacity: 0
-      },
-      {
-        opacity: 1,
-        duration: 1.5,
-        ease: 'Expo.easeIn'
-      }
-    )
-
     eventBus.$on('importCSV', () => {
       getAPI
         .get('/importcsv')
@@ -386,25 +373,24 @@ export default {
           let curbsData = response.data['curbs']
 
           // Import waypoints
-          response.data['waypoints']['2.0']['1']['x'].forEach((dummy, id) => {
-            let newLng = response.data['waypoints']['2.0']['1']['x'][id]
-            let newLat = response.data['waypoints']['2.0']['1']['y'][id]
-            this.markers.push(this.setLatLng(newLat, newLng))
-            this.polyline.array.push(this.setLatLng(newLat, newLng))
-          })
+          // response.data['waypoints']['2.0']['x'].forEach((dummy, id) => {
+          //   let newLng = response.data['waypoints']['2.0']['x'][id]
+          //   let newLat = response.data['waypoints']['2.0']['y'][id]
+          //   this.markers.push(this.setLatLng(newLat, newLng))
+          //   this.polyline.array.push(this.setLatLng(newLat, newLng))
+          // })
 
           for (let csv in waypointsData) {
-            for (let laneInd in waypointsData[csv]) {
-              let laneArray = []
+            let laneArray = []
 
-              waypointsData[csv][laneInd]['x'].forEach((dummy, id) => {
-                let newLng = waypointsData[csv][laneInd]['x'][id]
-                let newLat = waypointsData[csv][laneInd]['y'][id]
-                laneArray.push(this.setLatLng(newLat, newLng))
-              })
-              this.drawRoutes(laneArray)
-            }
+            waypointsData[csv]['x'].forEach((dummy, id) => {
+              let newLng = waypointsData[csv]['x'][id]
+              let newLat = waypointsData[csv]['y'][id]
+              laneArray.push(this.setLatLng(newLat, newLng))
+            })
+            this.drawRoutes(laneArray)
           }
+
           this.routes.created = true
 
           // Import curbs

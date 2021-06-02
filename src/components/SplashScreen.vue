@@ -32,7 +32,9 @@ export default {
           duration: 1
         }
       )
-      this.begin = true
+      setTimeout(() => {
+        this.begin = true
+      }, 1000)
     },
 
     beginFast() {
@@ -124,7 +126,7 @@ export default {
   border-radius: 10px;
   background-color: transparent;
   width: 8%;
-  opacity: 0.5;
+  opacity: 0;
 }
 
 #startBtn:hover {

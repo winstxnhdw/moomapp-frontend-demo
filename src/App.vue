@@ -1,12 +1,14 @@
 <template>
   <div id="app">
     <v-app>
-      <LoadingScreen v-if="isLoading" />
+      <Mobile v-if="isMobile()" />
 
-      <v-main v-if="!isLoading">
-        <Mobile v-if="isMobile()" />
+      <v-main v-else>
+        <v-overlay :value="isLoading" :z-index="10000">
+          <LoadingScreen />
+        </v-overlay>
 
-        <div v-else>
+        <div>
           <v-navigation-drawer app fixed left hide-overlay width="30%" v-model="drawer.state" class="pa-0 ma-0">
             <Analytics />
           </v-navigation-drawer>
@@ -17,7 +19,7 @@
             :drawer-state="drawer.state"
             :drawer-label="drawer.label"
           />
-          <SplashScreen id="SplashScreen" />
+          <SplashScreen v-if="!isLoading" id="SplashScreen" />
         </div>
       </v-main>
     </v-app>
@@ -44,7 +46,7 @@ export default {
   data() {
     return {
       isLoading: true,
-      loadMap: false,
+      loadMap: true,
       drawer: {
         state: false,
         label: 'Show sidebar'
@@ -74,22 +76,12 @@ export default {
   mounted() {
     setTimeout(() => {
       this.isLoading = false
-    }, 500)
-
-    setTimeout(() => {
-      this.loadMap = true
-    }, 2000)
+    }, 1000)
   }
 }
 </script>
 
 <style>
-v-navigation-drawer__content {
-  height: 100%;
-  overflow-y: hidden !important;
-  overflow-x: hidden;
-}
-
 #app {
   background-color: rgb(0, 0, 0);
   position: fixed;
