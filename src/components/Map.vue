@@ -195,13 +195,13 @@ export default {
   methods: {
     // General functions
     resetHighlight() {
-      if (this.selectedMarkersId.length != 0) {
-        this.selectedMarkersId.forEach((dummy, id) => {
-          let selectedMarker = this.selectedMarkersId[id]
-          this.$refs.myMarkers[selectedMarker].mapObject.setIcon(this.icon)
-          this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(1)
-        })
+      if (this.selectedMarkersId.length == 0) {
+        return
       }
+      this.selectedMarkersId.forEach(markerIdx => {
+        this.$refs.myMarkers[markerIdx].mapObject.setIcon(this.icon)
+        this.$refs.myMarkers[markerIdx].mapObject.setOpacity(1)
+      })
     },
 
     clearSelectedMarkers() {
@@ -214,23 +214,23 @@ export default {
       return { lat: newLat, lng: newLng }
     },
 
-    drawCurbs(curbs, curb_markers) {
-      if (this.curbs.created == false) {
-        const map = this.$refs.myMap.mapObject
-        L.polyline(curbs, this.curbs).addTo(map)
-        console.log(curb_markers)
-        // curb_markers.forEach((dummy, id) => {
-        //   L.marker(curb_markers[id], { icon: this.iconOptimised }).addTo(map)
-        // })
-        this.curbs.created = true
+    drawCurbs(curbs) {
+      if (this.curbs.created == true) {
+        return
       }
+
+      const map = this.$refs.myMap.mapObject
+      L.polyline(curbs, this.curbs).addTo(map)
+      this.curbs.created = true
     },
 
     drawRoutes(laneArray) {
-      if (this.routes.created == false) {
-        const map = this.$refs.myMap.mapObject
-        L.polyline(laneArray, this.routes).addTo(map)
+      if (this.routes.created != false) {
+        return
       }
+
+      const map = this.$refs.myMap.mapObject
+      L.polyline(laneArray, this.routes).addTo(map)
     },
 
     // Event handlers
@@ -254,43 +254,45 @@ export default {
       else {
         this.$emit('toggle-sidebar')
       }
-
-      const map = this.$refs.myMap.mapObject
-      map.invalidateSize()
     },
 
     deleteMarker(event, index) {
-      if (this.mode == 'Delete Mode') {
-        this.markers.splice(index, 1)
-        this.polyline.array.splice(index, 1)
+      if (this.mode != 'Delete Mode') {
+        return
       }
+
+      this.markers.splice(index, 1)
+      this.polyline.array.splice(index, 1)
     },
 
     createMarker(event) {
-      if (this.mode == 'Create Mode') {
-        this.markers.push(event.latlng)
-        this.polyline.array.push(event.latlng)
+      if (this.mode != 'Create Mode') {
+        return
       }
+
+      this.markers.push(event.latlng)
+      this.polyline.array.push(event.latlng)
     },
 
     // Saves marker's original position
     dragStart(event, index) {
-      if (this.mode == 'Select Mode') {
-        let latlng = event.target.getLatLng()
+      if (this.mode != 'Select Mode') {
+        return
+      }
 
-        if (this.selectedMarkersId.includes(index)) {
-          this.oldMarkerPos = []
-          this.oldClickedMarkerPos = [latlng.lat, latlng.lng]
+      let latlng = event.target.getLatLng()
 
-          this.selectedMarkersId.forEach((dummy, id) => {
-            let selectedMarker = this.selectedMarkersId[id]
-            let oldLat = this.markers[selectedMarker].lat
-            let oldLng = this.markers[selectedMarker].lng
-            this.oldMarkerPos.push([oldLat, oldLng])
-          })
-        } else {
-          this.mode = 'Create Mode'
-        }
+      if (this.selectedMarkersId.includes(index)) {
+        this.oldMarkerPos = []
+        this.oldClickedMarkerPos = [latlng.lat, latlng.lng]
+
+        this.selectedMarkersId.forEach(markerIdx => {
+          let oldLat = this.markers[markerIdx].lat
+          let oldLng = this.markers[markerIdx].lng
+          this.oldMarkerPos.push([oldLat, oldLng])
+        })
+      } else {
+        this.mode = 'Create Mode'
       }
     },
 
@@ -300,13 +302,12 @@ export default {
         let delta_lat = event.latlng.lat - this.oldClickedMarkerPos[0]
         let delta_lng = event.latlng.lng - this.oldClickedMarkerPos[1]
 
-        this.selectedMarkersId.forEach((dummy, id) => {
-          let selectedMarker = this.selectedMarkersId[id]
+        this.selectedMarkersId.forEach((markerIdx, id) => {
           let newLat = this.oldMarkerPos[id][0] + delta_lat
           let newLng = this.oldMarkerPos[id][1] + delta_lng
           let newLatLng = this.setLatLng(newLat, newLng)
-          this.polyline.array[selectedMarker] = newLatLng
-          this.markers.splice(selectedMarker, 1, newLatLng)
+          this.polyline.array[markerIdx] = newLatLng
+          this.markers.splice(markerIdx, 1, newLatLng)
         })
         this.polyline.array.splice() // Refreshes the polyline path
       } else {
@@ -348,9 +349,9 @@ export default {
           let indices = this.selectedMarkersId.reverse()
           this.mode = 'Create Mode'
 
-          indices.forEach((dummy, id) => {
-            this.polyline.array.splice(indices[id], 1)
-            this.markers.splice(indices[id], 1)
+          indices.forEach(idx => {
+            this.polyline.array.splice(idx, 1)
+            this.markers.splice(idx, 1)
           })
           this.clearSelectedMarkers()
         }
@@ -366,7 +367,6 @@ export default {
           // x: longitude, y: lattitude
           this.markers = []
           this.polyline.array = []
-          let curb_markers = []
           let curbs = []
 
           let waypointsData = response.data['waypoints']
@@ -400,12 +400,11 @@ export default {
               let newLng = response.data['curbs'][id]['x'][i]
               let newLat = response.data['curbs'][id]['y'][i]
               let newLatLng = [newLat, newLng]
-              curb_markers.push(this.setLatLng(newLat, newLng))
               curb.push(newLatLng)
             })
             curbs.push(curb)
           })
-          this.drawCurbs(curbs, curb_markers)
+          this.drawCurbs(curbs)
         })
         .catch(error => {
           console.log(error)
@@ -418,9 +417,9 @@ export default {
       let unoptimisedCurvature = []
       let optimisedCurvature = []
 
-      this.selectedMarkers.forEach((dummy, id) => {
-        x.push(this.selectedMarkers[id].lng)
-        y.push(this.selectedMarkers[id].lat)
+      this.selectedMarkers.forEach(selectedMarker => {
+        x.push(selectedMarker.lng)
+        y.push(selectedMarker.lat)
       })
 
       let params = {
@@ -445,7 +444,7 @@ export default {
             optimisedCurvature.push(response.data['ok'][id])
           })
           let curvatures = { unoptimised: unoptimisedCurvature, optimised: optimisedCurvature }
-          this.$store.commit('chart/setCurvatures')
+          // this.$store.commit('chart/setCurvatures')
           eventBus.$emit('curvatures', curvatures)
           eventBus.$emit('notLoading')
         })
@@ -474,9 +473,6 @@ export default {
 
     this.$nextTick(() => {
       const map = this.$refs.myMap.mapObject
-      setTimeout(function() {
-        map.invalidateSize()
-      }, 400)
       const drawControl = new window.L.Control.Draw({
         position: 'topleft',
         draw: {
@@ -500,26 +496,25 @@ export default {
         this.clearSelectedMarkers()
 
         if (type === 'rectangle') {
-          this.markers.forEach((dummy, id) => {
-            if (layer.getBounds().contains(this.markers[id]) == true) {
+          this.markers.forEach((marker, id) => {
+            if (layer.getBounds().contains(marker) == true) {
               this.selectedMarkersId.push(id)
-              this.selectedMarkers.push(this.markers[id])
+              this.selectedMarkers.push(marker)
             }
           })
         } else if (type === 'circle') {
-          this.markers.forEach((dummy, id) => {
-            if (map.distance(layer.getLatLng(), this.markers[id]) < layer.getRadius()) {
+          this.markers.forEach((marker, id) => {
+            if (map.distance(layer.getLatLng(), marker) < layer.getRadius()) {
               this.selectedMarkersId.push(id)
-              this.selectedMarkers.push(this.markers[id])
+              this.selectedMarkers.push(marker)
             }
           })
         }
 
         // Visualise selected markers
-        this.selectedMarkersId.forEach((dummy, id) => {
-          let selectedMarker = this.selectedMarkersId[id]
-          this.$refs.myMarkers[selectedMarker].mapObject.setIcon(this.iconSelected)
-          this.$refs.myMarkers[selectedMarker].mapObject.setOpacity(0.7)
+        this.selectedMarkersId.forEach(markerIdx => {
+          this.$refs.myMarkers[markerIdx].mapObject.setIcon(this.iconSelected)
+          this.$refs.myMarkers[markerIdx].mapObject.setOpacity(0.7)
         })
 
         this.mode = 'Select Mode'

@@ -9,7 +9,16 @@
         </v-overlay>
 
         <div>
-          <v-navigation-drawer app fixed left hide-overlay width="30%" v-model="drawer.state" class="pa-0 ma-0">
+          <v-navigation-drawer
+            app
+            fixed
+            left
+            hide-overlay
+            width="30%"
+            color="#1E1E1E"
+            v-model="drawer.state"
+            class="pa-0 ma-0"
+          >
             <Analytics />
           </v-navigation-drawer>
 

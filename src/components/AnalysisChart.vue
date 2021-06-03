@@ -85,14 +85,6 @@ export default {
   },
 
   mounted() {
-    this.$store.watch(
-      function(state) {
-        return state.curvatures
-      },
-      function() {
-        console.log('test')
-      }
-    )
     eventBus.$on('curvatures', data => {
       this.fillData(data['unoptimised'], data['optimised'])
     })
