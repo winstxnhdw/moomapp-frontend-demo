@@ -334,6 +334,71 @@ export default {
       this.$refs.zoomBar.zoomUpdate(zoom)
     },
 
+    importCSV(data) {
+      // x: longitude, y: lattitude
+      this.markers = []
+      this.polyline.array = []
+      let curbs = []
+
+      let waypointsData = data['waypoints']
+      let curbsData = data['curbs']
+
+      // Import waypoints
+      // data['waypoints']['2.0']['x'].forEach((dummy, id) => {
+      //   let newLng = data['waypoints']['2.0']['x'][id]
+      //   let newLat = data['waypoints']['2.0']['y'][id]
+      //   this.markers.push(this.setLatLng(newLat, newLng))
+      //   this.polyline.array.push(this.setLatLng(newLat, newLng))
+      // })
+
+      for (let csv in waypointsData) {
+        let laneArray = []
+
+        for (let id in waypointsData[csv]['x']) {
+          let newLng = waypointsData[csv]['x'][id]
+          let newLat = waypointsData[csv]['y'][id]
+          laneArray.push(this.setLatLng(newLat, newLng))
+        }
+        this.drawRoutes(laneArray)
+      }
+
+      this.routes.created = true
+
+      // Import curbs
+      for (let id in curbsData) {
+        let curb = []
+
+        for (let i in data['curbs'][id]['x']) {
+          let newLng = data['curbs'][id]['x'][i]
+          let newLat = data['curbs'][id]['y'][i]
+          let newLatLng = [newLat, newLng]
+          curb.push(newLatLng)
+        }
+
+        curbs.push(curb)
+      }
+      this.drawCurbs(curbs)
+    },
+
+    setOptimisedPath(data) {
+      this.optimisedPath.array = []
+      let unoptimisedCurvature = []
+      let optimisedCurvature = []
+
+      for (let id in data['x']) {
+        let newLat = data['y'][id]
+        let newLng = data['x'][id]
+        this.optimisedPath.array.push(this.setLatLng(newLat, newLng))
+        unoptimisedCurvature.push(data['wk'][id])
+        optimisedCurvature.push(data['ok'][id])
+      }
+
+      let curvatures = { unoptimised: unoptimisedCurvature, optimised: optimisedCurvature }
+      this.$store.commit('chart/setCurvatures')
+      eventBus.$emit('curvatures', curvatures)
+      eventBus.$emit('notLoading')
+    },
+
     keyPress(event) {
       if (event.originalEvent.key == 'c') {
         this.modeSwitch()
@@ -364,47 +429,7 @@ export default {
       getAPI
         .get('/importcsv')
         .then(response => {
-          // x: longitude, y: lattitude
-          this.markers = []
-          this.polyline.array = []
-          let curbs = []
-
-          let waypointsData = response.data['waypoints']
-          let curbsData = response.data['curbs']
-
-          // Import waypoints
-          // response.data['waypoints']['2.0']['x'].forEach((dummy, id) => {
-          //   let newLng = response.data['waypoints']['2.0']['x'][id]
-          //   let newLat = response.data['waypoints']['2.0']['y'][id]
-          //   this.markers.push(this.setLatLng(newLat, newLng))
-          //   this.polyline.array.push(this.setLatLng(newLat, newLng))
-          // })
-
-          for (let csv in waypointsData) {
-            let laneArray = []
-
-            waypointsData[csv]['x'].forEach((dummy, id) => {
-              let newLng = waypointsData[csv]['x'][id]
-              let newLat = waypointsData[csv]['y'][id]
-              laneArray.push(this.setLatLng(newLat, newLng))
-            })
-            this.drawRoutes(laneArray)
-          }
-
-          this.routes.created = true
-
-          // Import curbs
-          Object.entries(curbsData).forEach((dummy, id) => {
-            let curb = []
-            response.data['curbs'][id]['x'].forEach((dummy, i) => {
-              let newLng = response.data['curbs'][id]['x'][i]
-              let newLat = response.data['curbs'][id]['y'][i]
-              let newLatLng = [newLat, newLng]
-              curb.push(newLatLng)
-            })
-            curbs.push(curb)
-          })
-          this.drawCurbs(curbs)
+          this.importCSV(response.data)
         })
         .catch(error => {
           console.log(error)
@@ -412,19 +437,9 @@ export default {
     })
 
     eventBus.$on('optimise', () => {
-      let x = []
-      let y = []
-      let unoptimisedCurvature = []
-      let optimisedCurvature = []
-
-      this.selectedMarkers.forEach(selectedMarker => {
-        x.push(selectedMarker.lng)
-        y.push(selectedMarker.lat)
-      })
-
       let params = {
-        x: x,
-        y: y,
+        x: this.selectedMarkers.map(x => x.lng),
+        y: this.selectedMarkers.map(y => y.lat),
         maxlatdev: this.sliders.maxlatdev,
         safetythresh: this.sliders.safetythresh,
         weights: this.sliders.weights,
@@ -434,19 +449,7 @@ export default {
       getAPI
         .post('/optimise', params)
         .then(response => {
-          this.optimisedPath.array = []
-
-          response.data['x'].forEach((dummy, id) => {
-            let newLat = response.data['y'][id]
-            let newLng = response.data['x'][id]
-            this.optimisedPath.array.push(this.setLatLng(newLat, newLng))
-            unoptimisedCurvature.push(response.data['wk'][id])
-            optimisedCurvature.push(response.data['ok'][id])
-          })
-          let curvatures = { unoptimised: unoptimisedCurvature, optimised: optimisedCurvature }
-          // this.$store.commit('chart/setCurvatures')
-          eventBus.$emit('curvatures', curvatures)
-          eventBus.$emit('notLoading')
+          this.setOptimisedPath(response.data)
         })
         .catch(error => {
           eventBus.$emit('cancel')
