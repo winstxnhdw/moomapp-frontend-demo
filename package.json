@@ -14,6 +14,7 @@
     "gsap": "^3.6.1",
     "leaflet": "^1.7.1",
     "leaflet-draw": "^1.0.4",
+    "lodash": "^4.17.21",
     "vue": "^2.6.12",
     "vue-chartjs": "^3.5.1",
     "vue2-leaflet": "^2.7.0",

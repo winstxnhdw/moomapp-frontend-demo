@@ -31,13 +31,37 @@
       <l-layer-group layerType="overlay" name="Paths">
         <l-polyline
           :lat-lngs="polyline.array"
-          :color="polyline.color"
+          :color="polyline.colour"
           :opacity="polyline.opacity"
           :dashArray="polyline.dashArray"
           :weight="polyline.weight"
         />
 
-        <l-polyline :lat-lngs="optimisedPath.array" :color="optimisedPath.color" :weight="optimisedPath.weight" />
+        <l-polyline
+          ref="myRoutes"
+          v-for="(route, index) in routes.array"
+          :key="index"
+          :lat-lngs="route"
+          :color="routes.colour"
+          :opacity="routes.opacity"
+          :weight="routes.weight"
+          @click="routeSelect(index)"
+          @mouseover="routeMouseOver(index)"
+          @mouseleave="routeMouseLeave(index)"
+        />
+
+        <l-polyline :lat-lngs="optimisedPath.array" :color="optimisedPath.colour" :weight="optimisedPath.weight" />
+      </l-layer-group>
+
+      <l-layer-group layerType="overlay" name="Curbs">
+        <l-polyline
+          v-for="(curb, index) in curbs.array"
+          :key="index"
+          :lat-lngs="curb"
+          :color="curbs.colour"
+          :opacity="curbs.opacity"
+          :weight="curbs.weight"
+        />
       </l-layer-group>
 
       <l-layer-group layerType="overlay" name="Waypoints">
@@ -49,9 +73,9 @@
           :lat-lng="marker"
           :icon="icon"
           @click="deleteMarker($event, index)"
-          @drag="dragEvent($event, index)"
-          @dragstart="dragStart($event, index)"
-          @dragend="dragEnd($event, index)"
+          @drag="markerDragEvent($event, index)"
+          @dragstart="markerDragStart($event, index)"
+          @dragend="markerDragEnd($event, index)"
         ></l-marker>
       </l-layer-group>
 
@@ -75,6 +99,7 @@ import ZoomBar from './ZoomBar'
 import { eventBus } from './../event-bus'
 import { getAPI } from '@/axios'
 import { LMap, LMarker, LControl, LPolyline, LImageOverlay, LControlLayers, LLayerGroup } from 'vue2-leaflet'
+import _ from 'lodash'
 import L from 'leaflet'
 import 'leaflet-draw'
 
@@ -142,7 +167,7 @@ export default {
 
       polyline: {
         array: [],
-        color: '#FFF',
+        colour: '#FFF',
         opacity: 0.6,
         dashArray: '5, 10',
         weight: 1
@@ -150,22 +175,31 @@ export default {
 
       optimisedPath: {
         array: [],
-        color: '#FFB400',
+        colour: '#FFB400',
         weight: 2
       },
 
       curbs: {
-        color: 'white',
+        array: [],
+        colour: 'white',
         opacity: 0.6,
-        weight: 1,
-        created: false
+        weight: 1
       },
 
       routes: {
-        color: 'red',
-        opacity: 0.5,
-        weight: 5,
-        created: false
+        csv: [],
+        array: [],
+        selected: [],
+        colour: 'white',
+        opacity: 0.4,
+        weight: 5
+      },
+
+      connections: {
+        exitCsv: [],
+        exitId: [],
+        entranceCsv: [],
+        entranceId: []
       },
 
       sliders: {
@@ -198,10 +232,17 @@ export default {
       if (this.selectedMarkersId.length == 0) {
         return
       }
+
       this.selectedMarkersId.forEach(markerIdx => {
         this.$refs.myMarkers[markerIdx].mapObject.setIcon(this.icon)
         this.$refs.myMarkers[markerIdx].mapObject.setOpacity(1)
       })
+    },
+
+    resetRoutes() {
+      for (let i in this.$refs.myRoutes) {
+        this.$refs.myRoutes[i].mapObject.setStyle({ weight: this.routes.weight })
+      }
     },
 
     clearSelectedMarkers() {
@@ -212,25 +253,6 @@ export default {
 
     setLatLng(newLat, newLng) {
       return { lat: newLat, lng: newLng }
-    },
-
-    drawCurbs(curbs) {
-      if (this.curbs.created == true) {
-        return
-      }
-
-      const map = this.$refs.myMap.mapObject
-      L.polyline(curbs, this.curbs).addTo(map)
-      this.curbs.created = true
-    },
-
-    drawRoutes(laneArray) {
-      if (this.routes.created != false) {
-        return
-      }
-
-      const map = this.$refs.myMap.mapObject
-      L.polyline(laneArray, this.routes).addTo(map)
     },
 
     // Event handlers
@@ -256,6 +278,11 @@ export default {
       }
     },
 
+    drawMarker(latLng) {
+      this.markers.push(latLng)
+      this.polyline.array.push(latLng)
+    },
+
     deleteMarker(event, index) {
       if (this.mode != 'Delete Mode') {
         return
@@ -270,12 +297,11 @@ export default {
         return
       }
 
-      this.markers.push(event.latlng)
-      this.polyline.array.push(event.latlng)
+      this.drawMarker(event.latlng)
     },
 
     // Saves marker's original position
-    dragStart(event, index) {
+    markerDragStart(event, index) {
       if (this.mode != 'Select Mode') {
         return
       }
@@ -297,7 +323,7 @@ export default {
     },
 
     // Dynamically updates the markers and path
-    dragEvent(event, index) {
+    markerDragEvent(event, index) {
       if (this.mode == 'Select Mode') {
         let delta_lat = event.latlng.lat - this.oldClickedMarkerPos[0]
         let delta_lng = event.latlng.lng - this.oldClickedMarkerPos[1]
@@ -318,7 +344,7 @@ export default {
     },
 
     // Updates the marker's position after dragging (for single-marker dragging)
-    dragEnd(event, index) {
+    markerDragEnd(event, index) {
       if (this.mode != 'Select Mode') {
         let latlng = event.target.getLatLng()
         this.markers[index].lat = latlng.lat
@@ -330,26 +356,57 @@ export default {
       setTimeout(() => (this.mode = 'Create Mode'))
     },
 
+    routeSelect(index) {
+      for (let id in this.routes.array[index]) {
+        this.drawMarker(_.cloneDeep(this.routes.array[index][id]))
+      }
+
+      let routesToKeepId = []
+
+      this.connections.exitCsv.forEach((csv, id) => {
+        if (this.routes.csv[index] == csv) {
+          let routeId = this.routes.csv.findIndex(route => route == this.connections.entranceCsv[id])
+
+          if (this.routes.selected.includes(routeId) == false) {
+            routesToKeepId.push(routeId)
+          }
+        }
+      })
+
+      this.resetRoutes()
+
+      for (let i in this.$refs.myRoutes) {
+        let idx = parseInt(i)
+        if (routesToKeepId.includes(idx) == false) {
+          this.$refs.myRoutes[idx].mapObject.setStyle({ weight: 0 })
+        }
+      }
+
+      this.routes.selected.push(index)
+    },
+
+    routeMouseOver(index) {
+      this.$refs.myRoutes[index].mapObject.setStyle({ opacity: 1 })
+    },
+
+    routeMouseLeave(index) {
+      this.$refs.myRoutes[index].mapObject.setStyle({ opacity: this.routes.opacity })
+    },
+
     zoomBarUpdate(zoom) {
       this.$refs.zoomBar.zoomUpdate(zoom)
     },
 
-    importCSV(data) {
+    importCsv(data) {
       // x: longitude, y: lattitude
       this.markers = []
       this.polyline.array = []
-      let curbs = []
+      this.routes.array = []
+      this.curbs.array = []
 
       let waypointsData = data['waypoints']
       let curbsData = data['curbs']
-
-      // Import waypoints
-      // data['waypoints']['2.0']['x'].forEach((dummy, id) => {
-      //   let newLng = data['waypoints']['2.0']['x'][id]
-      //   let newLat = data['waypoints']['2.0']['y'][id]
-      //   this.markers.push(this.setLatLng(newLat, newLng))
-      //   this.polyline.array.push(this.setLatLng(newLat, newLng))
-      // })
+      let connectionsData = data['connections']
 
       for (let csv in waypointsData) {
         let laneArray = []
@@ -359,10 +416,10 @@ export default {
           let newLat = waypointsData[csv]['y'][id]
           laneArray.push(this.setLatLng(newLat, newLng))
         }
-        this.drawRoutes(laneArray)
+        this.routes.array.push(laneArray)
       }
-
-      this.routes.created = true
+      this.routes.csv = Object.keys(waypointsData)
+      this.resetRoutes()
 
       // Import curbs
       for (let id in curbsData) {
@@ -375,9 +432,15 @@ export default {
           curb.push(newLatLng)
         }
 
-        curbs.push(curb)
+        this.curbs.array.push(curb)
+        this.mode = 'View Mode'
       }
-      this.drawCurbs(curbs)
+
+      // Import connections
+      this.connections.exitCsv = connectionsData['exit']['csv']
+      this.connections.exitId = connectionsData['exit']['id']
+      this.connections.entranceCsv = connectionsData['entrance']['csv']
+      this.connections.entranceId = connectionsData['exit']['id']
     },
 
     setOptimisedPath(data) {
@@ -420,16 +483,18 @@ export default {
           })
           this.clearSelectedMarkers()
         }
+      } else if (event.originalEvent.key == 'Enter') {
+        this.toggleAnalytics()
       }
     }
   },
 
   mounted() {
-    eventBus.$on('importCSV', () => {
+    eventBus.$on('importCsv', () => {
       getAPI
         .get('/importcsv')
         .then(response => {
-          this.importCSV(response.data)
+          this.importCsv(response.data)
         })
         .catch(error => {
           console.log(error)
