@@ -194,7 +194,7 @@ export default {
         array: [],
         colour: 'white',
         opacity: 0.4,
-        weight: 5,
+        weight: 8,
         trackArray: [],
         trackCsv: [],
         selected: false
@@ -570,6 +570,33 @@ export default {
           eventBus.$emit('cancel')
           console.log(error)
         })
+    })
+
+    eventBus.$on('exportCsv', () => {
+      let path = []
+      let csv = []
+
+      if (this.routes.csv.length != 0) {
+        if (this.optimisedPath.length != 0) {
+          path = this.optimisedPath
+          csv = this.routes.csv
+        } else if (this.markers.length != 0) {
+          path = this.markers
+          csv = this.routes.csv
+        } else {
+          return
+        }
+      }
+
+      let params = {
+        x: path.map(x => x.lng),
+        y: path.map(y => y.lat),
+        csv: csv
+      }
+
+      getAPI.post('/exportcsv', params).catch(error => {
+        console.log(error)
+      })
     })
 
     eventBus.$on('clearOptimisedPath', () => {
