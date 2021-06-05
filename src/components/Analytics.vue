@@ -17,7 +17,7 @@
       <v-tab-item :key="1" value="analysis">
         <v-container>
           <v-card flat height="92.4vh">
-            <AnalysisChart ref="analysisChart" />
+            <AnalysisChart ref="analysis" />
           </v-card>
         </v-container>
       </v-tab-item>
@@ -54,7 +54,7 @@ export default {
   name: 'Analytics',
   data() {
     return {
-      tab: 'configuration',
+      tab: 'analysis',
       datacollection: {}
     }
   },

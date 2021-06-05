@@ -76,7 +76,10 @@
           @drag="markerDragEvent($event, index)"
           @dragstart="markerDragStart($event, index)"
           @dragend="markerDragEnd($event, index)"
-        ></l-marker>
+          @mouseover="markerMouseOver(index)"
+        >
+          <l-tooltip :options="{ offset: [0, -20], opacity: 0.7, direction: 'top' }" :content="tooltipIndex" />
+        </l-marker>
       </l-layer-group>
 
       <l-control position="bottomright">
@@ -98,7 +101,7 @@ import Vignette from './Vignette'
 import ZoomBar from './ZoomBar'
 import { eventBus } from './../event-bus'
 import { getAPI } from '@/axios'
-import { LMap, LMarker, LControl, LPolyline, LImageOverlay, LControlLayers, LLayerGroup } from 'vue2-leaflet'
+import { LMap, LMarker, LControl, LPolyline, LImageOverlay, LControlLayers, LLayerGroup, LTooltip } from 'vue2-leaflet'
 import _ from 'lodash'
 import L from 'leaflet'
 import 'leaflet-draw'
@@ -119,7 +122,7 @@ export default {
 
   data() {
     return {
-      csv: null,
+      tooltipIndex: null,
       markers: [],
       selectedMarkersId: [],
       selectedMarkers: [],
@@ -156,11 +159,11 @@ export default {
         shadowAnchor: [10, 10]
       }),
 
-      iconOptimised: L.icon({
-        iconUrl: require('/src/assets/marker_optimised.svg'),
+      iconHover: L.icon({
+        iconUrl: require('/src/assets/marker_hover.svg'),
         iconSize: [5, 5],
         iconAnchor: [2.5, 2.5],
-        shadowUrl: require('/src/assets/s_marker_optimised.svg'),
+        shadowUrl: require('/src/assets/s_marker_hover.svg'),
         shadowSize: [20, 20],
         shadowAnchor: [10, 10]
       }),
@@ -189,10 +192,12 @@ export default {
       routes: {
         csv: [],
         array: [],
-        selected: [],
         colour: 'white',
         opacity: 0.4,
-        weight: 5
+        weight: 5,
+        trackArray: [],
+        trackCsv: [],
+        selected: false
       },
 
       connections: {
@@ -222,6 +227,7 @@ export default {
     LImageOverlay,
     LControlLayers,
     LLayerGroup,
+    LTooltip,
     ZoomBar,
     Vignette
   },
@@ -356,9 +362,54 @@ export default {
       setTimeout(() => (this.mode = 'Create Mode'))
     },
 
+    markerMouseOver(index) {
+      this.tooltipIndex = index.toString()
+    },
+
     routeSelect(index) {
-      for (let id in this.routes.array[index]) {
-        this.drawMarker(_.cloneDeep(this.routes.array[index][id]))
+      this.routes.trackArray.push(_.cloneDeep(this.routes.array[index]))
+      this.routes.trackCsv.push(this.routes.csv[index])
+
+      if (this.routes.selected == false) {
+        for (let id in this.routes.array[index]) {
+          this.drawMarker(_.cloneDeep(this.routes.array[index][id]))
+        }
+      } else {
+        let entranceCsv = this.routes.csv[index]
+        let exitCsv = this.routes.trackCsv[this.routes.trackCsv.length - 2]
+        let connectionsId = null
+
+        for (let connection in this.connections.entranceCsv) {
+          if (
+            this.connections.exitCsv[connection] == exitCsv &&
+            this.connections.entranceCsv[connection] == entranceCsv
+          ) {
+            connectionsId = connection
+          }
+        }
+
+        let exitId = this.connections.exitId[connectionsId]
+        let exitRoute = this.routes.trackArray[this.routes.trackArray.length - 2]
+        let exitRouteId = exitRoute.length - 1
+        let exitDropNum = exitRouteId - exitId
+        let newExit = _.dropRight(exitRoute, exitDropNum)
+
+        let entranceId = this.connections.entranceId[connectionsId]
+        let entranceRoute = this.routes.trackArray[this.routes.trackArray.length - 1]
+        let entranceDropNum = entranceId
+        let newEntrance = _.drop(entranceRoute, entranceDropNum)
+
+        this.markers = []
+        this.polyline.array = []
+
+        this.routes.trackArray.splice(this.routes.trackArray.length - 2, 1, newExit)
+        this.routes.trackArray.splice(this.routes.trackArray.length - 1, 1, newEntrance)
+
+        for (let route in this.routes.trackArray) {
+          for (let i in this.routes.trackArray[route]) {
+            this.drawMarker(_.cloneDeep(this.routes.trackArray[route][i]))
+          }
+        }
       }
 
       let routesToKeepId = []
@@ -366,10 +417,7 @@ export default {
       this.connections.exitCsv.forEach((csv, id) => {
         if (this.routes.csv[index] == csv) {
           let routeId = this.routes.csv.findIndex(route => route == this.connections.entranceCsv[id])
-
-          if (this.routes.selected.includes(routeId) == false) {
-            routesToKeepId.push(routeId)
-          }
+          routesToKeepId.push(routeId)
         }
       })
 
@@ -382,7 +430,7 @@ export default {
         }
       }
 
-      this.routes.selected.push(index)
+      this.routes.selected = true
     },
 
     routeMouseOver(index) {
@@ -403,6 +451,8 @@ export default {
       this.polyline.array = []
       this.routes.array = []
       this.curbs.array = []
+      this.routes.selected = []
+      this.routes.trackArray = []
 
       let waypointsData = data['waypoints']
       let curbsData = data['curbs']
@@ -440,7 +490,7 @@ export default {
       this.connections.exitCsv = connectionsData['exit']['csv']
       this.connections.exitId = connectionsData['exit']['id']
       this.connections.entranceCsv = connectionsData['entrance']['csv']
-      this.connections.entranceId = connectionsData['exit']['id']
+      this.connections.entranceId = connectionsData['entrance']['id']
     },
 
     setOptimisedPath(data) {
@@ -457,7 +507,7 @@ export default {
       }
 
       let curvatures = { unoptimised: unoptimisedCurvature, optimised: optimisedCurvature }
-      this.$store.commit('chart/setCurvatures')
+      // this.$store.commit('chart/setCurvatures')
       eventBus.$emit('curvatures', curvatures)
       eventBus.$emit('notLoading')
     },

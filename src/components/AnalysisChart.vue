@@ -16,12 +16,12 @@ export default {
         datasets: [
           {
             label: 'Unoptimized',
-            backgroundColor: '#EF6C00',
+            backgroundColor: '#C81B23',
             pointRadius: 0
           },
           {
             label: 'Optimized',
-            backgroundColor: '#B300B3',
+            backgroundColor: '#FFB400',
             pointRadius: 2
           }
         ]
@@ -84,7 +84,7 @@ export default {
     }
   },
 
-  mounted() {
+  beforeMount() {
     eventBus.$on('curvatures', data => {
       this.fillData(data['unoptimised'], data['optimised'])
     })
