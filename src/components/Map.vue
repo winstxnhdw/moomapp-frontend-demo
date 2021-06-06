@@ -453,6 +453,7 @@ export default {
       this.curbs.array = []
       this.routes.selected = []
       this.routes.trackArray = []
+      this.routes.trackCsv = []
 
       let waypointsData = data['waypoints']
       let curbsData = data['curbs']
@@ -574,24 +575,20 @@ export default {
 
     eventBus.$on('exportCsv', () => {
       let path = []
-      let csv = []
 
-      if (this.routes.csv.length != 0) {
-        if (this.optimisedPath.length != 0) {
-          path = this.optimisedPath
-          csv = this.routes.csv
+      if (this.routes.trackCsv.length != 0) {
+        if (this.optimisedPath.array.length != 0) {
+          path = this.optimisedPath.array
         } else if (this.markers.length != 0) {
-          path = this.markers
-          csv = this.routes.csv
+          path = this.selectedMarkers
         } else {
           return
         }
       }
-
       let params = {
         x: path.map(x => x.lng),
         y: path.map(y => y.lat),
-        csv: csv
+        csv: this.routes.trackCsv
       }
 
       getAPI.post('/exportcsv', params).catch(error => {

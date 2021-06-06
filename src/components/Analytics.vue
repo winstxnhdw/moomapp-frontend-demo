@@ -69,7 +69,7 @@ export default {
 
   methods: {
     animateChart() {
-      setTimeout(() => this.$refs.analysisChart.updateChart())
+      setTimeout(() => this.$refs.analysis.updateChart())
     }
   }
 }
