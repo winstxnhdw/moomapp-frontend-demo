@@ -191,6 +191,7 @@ export default {
         weight: 8,
         trackArray: [],
         trackCsv: [],
+        trackExit: [],
         selected: false
       },
 
@@ -205,7 +206,7 @@ export default {
         maxlatdev: 0.5,
         safetythresh: 0.5,
         displacement: 1,
-        weights: 50
+        weight: 50
       },
 
       fields: {
@@ -362,6 +363,7 @@ export default {
     },
 
     routeSelect(index) {
+      this.clearSelectedMarkers()
       this.routes.trackArray.push(_.cloneDeep(this.routes.array[index]))
       this.routes.trackCsv.push(this.routes.csv[index])
 
@@ -369,6 +371,7 @@ export default {
         for (let id in this.routes.array[index]) {
           this.drawMarker(_.cloneDeep(this.routes.array[index][id]))
         }
+        this.routes.selected = true
       } else {
         let entranceCsv = this.routes.csv[index]
         let exitCsv = this.routes.trackCsv[this.routes.trackCsv.length - 2]
@@ -397,6 +400,7 @@ export default {
         this.markers = []
         this.polyline.array = []
 
+        this.routes.trackExit.push([newExit[newExit.length - 1].lng, newExit[newExit.length - 1].lat])
         this.routes.trackArray.splice(this.routes.trackArray.length - 2, 1, newExit)
         this.routes.trackArray.splice(this.routes.trackArray.length - 1, 1, newEntrance)
 
@@ -424,8 +428,6 @@ export default {
           this.$refs.myRoutes[idx].mapObject.setStyle({ weight: 0 })
         }
       }
-
-      this.routes.selected = true
     },
 
     routeMouseOver(index) {
@@ -442,6 +444,8 @@ export default {
 
     importCsv(data) {
       // x: longitude, y: lattitude
+      this.clearSelectedMarkers()
+
       this.markers = []
       this.polyline.array = []
       this.routes.array = []
@@ -554,7 +558,7 @@ export default {
         maxlatdev: this.sliders.maxlatdev,
         safetythresh: this.sliders.safetythresh,
         displacement: this.sliders.displacement,
-        weights: this.sliders.weights,
+        weight: this.sliders.weight,
         width: this.fields.width
       }
 
@@ -581,10 +585,12 @@ export default {
           return
         }
       }
+
       let params = {
         x: path.map(x => x.lng),
         y: path.map(y => y.lat),
-        csv: this.routes.trackCsv
+        csv: this.routes.trackCsv,
+        exitrefs: this.routes.trackExit
       }
 
       getAPI.post('/exportcsv', params).catch(error => {
@@ -606,7 +612,7 @@ export default {
       this.sliders.displacement = data
     })
     eventBus.$on('slider4', data => {
-      this.sliders.weights = data
+      this.sliders.weight = data
     })
     eventBus.$on('field1', data => {
       this.fields.width = data
