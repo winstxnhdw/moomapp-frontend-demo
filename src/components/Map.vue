@@ -178,8 +178,8 @@ export default {
 
       optimisedPath: {
         array: [],
-        colour: '#FFB400',
-        weight: 2
+        colour: '#EF6C00',
+        weight: 8
       },
 
       curbs: {

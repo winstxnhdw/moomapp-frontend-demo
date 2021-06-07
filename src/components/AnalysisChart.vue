@@ -21,7 +21,7 @@ export default {
           },
           {
             label: 'Optimized',
-            backgroundColor: '#FFB400',
+            backgroundColor: '#EF6C00',
             pointRadius: 2
           }
         ]
