@@ -16,7 +16,7 @@
     <v-tabs-items dark class="tabs" v-model="tab">
       <v-tab-item :key="1" value="analysis">
         <v-container>
-          <v-card flat height="92.4vh">
+          <v-card flat>
             <AnalysisChart ref="analysis" />
           </v-card>
         </v-container>
@@ -24,7 +24,7 @@
 
       <v-tab-item :key="2" value="optimization">
         <v-container>
-          <v-card flat min-height="91.2vh">
+          <v-card flat>
             <Sliders />
             <ConfigFields />
             <OptimiseBtn />
@@ -34,7 +34,7 @@
 
       <v-tab-item :key="3" value="configuration">
         <v-container>
-          <v-card flat min-height="92.4vh">
+          <v-card flat>
             <Configuration />
           </v-card>
         </v-container>

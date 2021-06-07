@@ -210,6 +210,7 @@ export default {
       sliders: {
         maxlatdev: 0.5,
         safetythresh: 0.5,
+        displacement: 1,
         weights: 50
       },
 
@@ -558,6 +559,7 @@ export default {
         y: this.selectedMarkers.map(y => y.lat),
         maxlatdev: this.sliders.maxlatdev,
         safetythresh: this.sliders.safetythresh,
+        displacement: this.sliders.displacement,
         weights: this.sliders.weights,
         width: this.fields.width
       }
@@ -607,6 +609,9 @@ export default {
       this.sliders.safetythresh = data
     })
     eventBus.$on('slider3', data => {
+      this.sliders.displacement = data
+    })
+    eventBus.$on('slider4', data => {
       this.sliders.weights = data
     })
     eventBus.$on('field1', data => {

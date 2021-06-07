@@ -50,6 +50,23 @@
         </template>
       </v-slider>
     </v-card>
+
+    <v-card class="pa-3 mt-3">
+      <v-card-text class="noselect">{{ slider4.label }}</v-card-text>
+      <v-slider
+        v-model="slider4.val"
+        :hint="slider4.hint"
+        :step="slider4.step"
+        :color="slider4.colour"
+        :min="slider4.min"
+        :max="slider4.max"
+        @change="echoSlider4"
+      >
+        <template v-slot:append>
+          <v-text-field v-model="slider4.val" class="mt-0 pt-0 sliderText" hide-details type="number"></v-text-field>
+        </template>
+      </v-slider>
+    </v-card>
   </div>
 </template>
 
@@ -82,13 +99,23 @@ export default {
       },
 
       slider3: {
+        label: 'Waypoint Displacement',
+        hint: 'Larger values would produce smoother paths but a longer and exponential wait time',
+        val: 1.0,
+        colour: 'orange darken-3',
+        step: 0.01,
+        min: 0.01,
+        max: 5
+      },
+
+      slider4: {
         label: 'Optimizer Weights',
         hint: 'Larger values would produce smoother paths but a longer and exponential wait time',
         val: 50,
         colour: 'orange darken-3',
         step: 1,
-        min: 5,
-        max: 95
+        min: 0,
+        max: 100
       }
     }
   },
@@ -102,6 +129,9 @@ export default {
     },
     echoSlider3() {
       eventBus.$emit('slider3', this.slider3.val)
+    },
+    echoSlider4() {
+      eventBus.$emit('slider4', this.slider4.val)
     }
   }
 }
