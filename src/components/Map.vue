@@ -23,6 +23,10 @@
       @click="createMarker"
       @keydown="keyPress"
     >
+      <v-alert class="text-center" elevation="24" type="warning" :value="warnAlert.value" transition="fade-transition">
+        {{ warnAlert.label }}
+      </v-alert>
+
       <l-control-layers position="topleft"></l-control-layers>
 
       <l-layer-group layerType="overlay" name="Map">
@@ -174,6 +178,11 @@ export default {
         array: [],
         colour: '#EF6C00',
         weight: 8
+      },
+
+      warnAlert: {
+        value: false,
+        label: ''
       },
 
       curbs: {
@@ -539,6 +548,19 @@ export default {
     }
   },
 
+  watch: {
+    warnAlert: {
+      handler(newVal) {
+        if (newVal) {
+          setTimeout(() => {
+            this.warnAlert.value = false
+          }, 2000)
+        }
+      },
+      deep: true
+    }
+  },
+
   mounted() {
     eventBus.$on('importCsv', () => {
       getAPI
@@ -552,6 +574,13 @@ export default {
     })
 
     eventBus.$on('optimise', () => {
+      if (this.selectedMarkers.length <= 1) {
+        eventBus.$emit('cancel')
+        this.warnAlert.value = true
+        this.warnAlert.label = 'Please select a path of greater than length 1 before optimizing.'
+        return
+      }
+
       let params = {
         x: this.selectedMarkers.map(x => x.lng),
         y: this.selectedMarkers.map(y => y.lat),
@@ -574,16 +603,21 @@ export default {
     })
 
     eventBus.$on('exportCsv', () => {
+      if (this.routes.trackCsv.length == 0) {
+        this.warnAlert.value = true
+        this.warnAlert.label = 'Please select or optimize a path before exporting.'
+        return
+      }
+
       let path = []
 
-      if (this.routes.trackCsv.length != 0) {
-        if (this.optimisedPath.array.length != 0) {
-          path = this.optimisedPath.array
-        } else if (this.markers.length != 0) {
-          path = this.selectedMarkers
-        } else {
-          return
-        }
+      if (this.optimisedPath.array.length != 0) {
+        path = this.optimisedPath.array
+      } else if (this.selectedMarkers.length != 0) {
+        path = this.selectedMarkers
+      } else {
+        this.alert = true
+        return
       }
 
       let params = {
