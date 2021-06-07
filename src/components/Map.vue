@@ -24,6 +24,7 @@
       @keydown="keyPress"
     >
       <l-control-layers position="topleft"></l-control-layers>
+
       <l-layer-group layerType="overlay" name="Map">
         <l-image-overlay :url="url" :bounds="bounds" />
       </l-layer-group>
@@ -37,6 +38,10 @@
           :weight="polyline.weight"
         />
 
+        <l-polyline :lat-lngs="optimisedPath.array" :color="optimisedPath.colour" :weight="optimisedPath.weight" />
+      </l-layer-group>
+
+      <l-layer-group layerType="overlay" name="Routes">
         <l-polyline
           ref="myRoutes"
           v-for="(route, index) in routes.array"
@@ -49,8 +54,6 @@
           @mouseover="routeMouseOver(index)"
           @mouseleave="routeMouseLeave(index)"
         />
-
-        <l-polyline :lat-lngs="optimisedPath.array" :color="optimisedPath.colour" :weight="optimisedPath.weight" />
       </l-layer-group>
 
       <l-layer-group layerType="overlay" name="Curbs">
@@ -155,15 +158,6 @@ export default {
         iconSize: [5, 5],
         iconAnchor: [2.5, 2.5],
         shadowUrl: require('/src/assets/s_marker_selected.svg'),
-        shadowSize: [20, 20],
-        shadowAnchor: [10, 10]
-      }),
-
-      iconHover: L.icon({
-        iconUrl: require('/src/assets/marker_hover.svg'),
-        iconSize: [5, 5],
-        iconAnchor: [2.5, 2.5],
-        shadowUrl: require('/src/assets/s_marker_hover.svg'),
         shadowSize: [20, 20],
         shadowAnchor: [10, 10]
       }),
