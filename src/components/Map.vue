@@ -516,7 +516,6 @@ export default {
       }
 
       let curvatures = { unoptimised: unoptimisedCurvature, optimised: optimisedCurvature }
-      // this.$store.commit('chart/setCurvatures')
       eventBus.$emit('curvatures', curvatures)
       eventBus.$emit('notLoading')
     },
@@ -603,6 +602,7 @@ export default {
     })
 
     eventBus.$on('exportCsv', () => {
+      console.log(this.routes.trackExit)
       if (this.routes.trackCsv.length == 0) {
         this.warnAlert.value = true
         this.warnAlert.label = 'Please select or optimize a path before exporting.'
