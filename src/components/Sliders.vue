@@ -100,7 +100,7 @@ export default {
 
       slider3: {
         label: 'Waypoint Displacement',
-        hint: 'Larger values would produce smoother paths but a longer and exponential wait time',
+        hint: 'This sets the linear displacement between individual optimized points (in metres)',
         val: 1.0,
         colour: 'orange darken-3',
         step: 0.01,
