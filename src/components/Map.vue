@@ -198,6 +198,7 @@ export default {
         colour: 'white',
         opacity: 0.4,
         weight: 8,
+        trackRoutes: [],
         trackArray: [],
         trackCsv: [],
         trackExitId: [],
@@ -427,7 +428,10 @@ export default {
       this.connections.exitCsv.forEach((csv, id) => {
         if (this.routes.csv[index] == csv) {
           let routeId = this.routes.csv.findIndex(route => route == this.connections.entranceCsv[id])
-          routesToKeepId.push(routeId)
+
+          if (this.routes.trackRoutes.includes(routeId) == false) {
+            routesToKeepId.push(routeId)
+          }
         }
       })
 
@@ -439,6 +443,8 @@ export default {
           this.$refs.myRoutes[idx].mapObject.setStyle({ weight: 0 })
         }
       }
+
+      this.routes.trackRoutes.push(index)
     },
 
     routeMouseOver(index) {
@@ -462,6 +468,7 @@ export default {
       this.routes.array = []
       this.curbs.array = []
       this.routes.selected = []
+      this.routes.trackRoutes = []
       this.routes.trackArray = []
       this.routes.trackCsv = []
       this.routes.trackExitId = []
