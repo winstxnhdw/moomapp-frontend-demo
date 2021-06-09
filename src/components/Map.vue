@@ -200,6 +200,7 @@ export default {
         weight: 8,
         trackRoutes: [],
         trackArray: [],
+        trackArraySize: [],
         trackCsv: [],
         trackExitId: [],
         trackConnectionsId: [],
@@ -375,9 +376,11 @@ export default {
 
     routeSelect(index) {
       this.clearSelectedMarkers()
-      this.routes.trackArray.push(_.cloneDeep(this.routes.array[index]))
+      this.routes.trackArray.push(this.routes.array[index])
+      this.routes.trackArraySize.push(this.routes.array[index].length)
       this.routes.trackCsv.push(this.routes.csv[index])
 
+      // Waypoints and connections integration
       if (this.routes.selected == false) {
         for (let id in this.routes.array[index]) {
           this.drawMarker(_.cloneDeep(this.routes.array[index][id]))
@@ -399,8 +402,8 @@ export default {
 
         let exitId = this.connections.exitId[connectionsId]
         let exitRoute = this.routes.trackArray[this.routes.trackArray.length - 2]
-        let exitRouteId = exitRoute.length - 1
-        let exitDropNum = exitRouteId - exitId
+        let exitRouteLen = this.routes.trackArraySize[this.routes.trackArraySize.length - 2]
+        let exitDropNum = exitRouteLen - 1 - exitId
         let newExit = _.dropRight(exitRoute, exitDropNum)
 
         let entranceId = this.connections.entranceId[connectionsId]
@@ -423,6 +426,7 @@ export default {
         }
       }
 
+      // Route visualisation
       let routesToKeepId = []
 
       this.connections.exitCsv.forEach((csv, id) => {
@@ -613,7 +617,6 @@ export default {
     })
 
     eventBus.$on('exportCsv', () => {
-      console.log(this.routes.trackExit)
       if (this.routes.trackCsv.length == 0) {
         this.warnAlert.value = true
         this.warnAlert.label = 'Please select or optimize a path before exporting.'

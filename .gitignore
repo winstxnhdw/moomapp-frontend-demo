@@ -1,7 +1,6 @@
 .DS_Store
 node_modules
 /dist
-waypoints
 
 # local env files
 .env.local
