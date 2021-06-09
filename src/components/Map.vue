@@ -467,7 +467,7 @@ export default {
       this.polyline.array = []
       this.routes.array = []
       this.curbs.array = []
-      this.routes.selected = []
+      this.routes.selected = false
       this.routes.trackRoutes = []
       this.routes.trackArray = []
       this.routes.trackCsv = []
