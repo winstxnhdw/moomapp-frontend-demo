@@ -201,6 +201,8 @@ export default {
         trackArray: [],
         trackCsv: [],
         trackExitId: [],
+        trackEntranceId: [],
+        trackConnectionsId: [],
         selected: false
       },
 
@@ -409,7 +411,9 @@ export default {
         this.markers = []
         this.polyline.array = []
 
+        this.routes.trackConnectionsId.push(connectionsId)
         this.routes.trackExitId.push(exitId)
+        this.routes.trackEntranceId.push(entranceId)
         this.routes.trackArray.splice(this.routes.trackArray.length - 2, 1, newExit)
         this.routes.trackArray.splice(this.routes.trackArray.length - 1, 1, newEntrance)
 
@@ -463,6 +467,8 @@ export default {
       this.routes.trackArray = []
       this.routes.trackCsv = []
       this.routes.trackExitId = []
+      this.routes.trackEntranceId = []
+      this.routes.trackConnectionsId = []
 
       let waypointsData = data['waypoints']
       let curbsData = data['curbs']
@@ -624,7 +630,9 @@ export default {
         x: path.map(x => x.lng),
         y: path.map(y => y.lat),
         csv: this.routes.trackCsv,
-        exitrefs: this.routes.trackExitId
+        exitrefs: this.routes.trackExitId,
+        entrancerefs: this.routes.trackEntranceId,
+        connectionrefs: this.routes.trackConnectionsId
       }
 
       getAPI.post('/exportcsv', params).catch(error => {
