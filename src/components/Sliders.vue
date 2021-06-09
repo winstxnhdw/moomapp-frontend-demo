@@ -101,7 +101,7 @@ export default {
       slider3: {
         label: 'Waypoint Displacement',
         hint: 'This sets the linear displacement between individual optimized points (in metres)',
-        val: 1.0,
+        val: 3.0,
         colour: 'orange darken-3',
         step: 0.01,
         min: 0.01,

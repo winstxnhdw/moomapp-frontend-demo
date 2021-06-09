@@ -200,7 +200,7 @@ export default {
         weight: 8,
         trackArray: [],
         trackCsv: [],
-        trackExit: [],
+        trackExitId: [],
         selected: false
       },
 
@@ -409,7 +409,7 @@ export default {
         this.markers = []
         this.polyline.array = []
 
-        this.routes.trackExit.push([newExit[newExit.length - 1].lng, newExit[newExit.length - 1].lat])
+        this.routes.trackExitId.push(exitId)
         this.routes.trackArray.splice(this.routes.trackArray.length - 2, 1, newExit)
         this.routes.trackArray.splice(this.routes.trackArray.length - 1, 1, newEntrance)
 
@@ -462,6 +462,7 @@ export default {
       this.routes.selected = []
       this.routes.trackArray = []
       this.routes.trackCsv = []
+      this.routes.trackExitId = []
 
       let waypointsData = data['waypoints']
       let curbsData = data['curbs']
@@ -579,7 +580,6 @@ export default {
         this.warnAlert.label = 'Please select a path of greater than length 1 before optimizing.'
         return
       }
-
       let params = {
         x: this.selectedMarkers.map(x => x.lng),
         y: this.selectedMarkers.map(y => y.lat),
@@ -624,7 +624,7 @@ export default {
         x: path.map(x => x.lng),
         y: path.map(y => y.lat),
         csv: this.routes.trackCsv,
-        exitrefs: this.routes.trackExit
+        exitrefs: this.routes.trackExitId
       }
 
       getAPI.post('/exportcsv', params).catch(error => {
