@@ -201,7 +201,6 @@ export default {
         trackArray: [],
         trackCsv: [],
         trackExitId: [],
-        trackEntranceId: [],
         trackConnectionsId: [],
         selected: false
       },
@@ -413,7 +412,6 @@ export default {
 
         this.routes.trackConnectionsId.push(connectionsId)
         this.routes.trackExitId.push(exitId)
-        this.routes.trackEntranceId.push(entranceId)
         this.routes.trackArray.splice(this.routes.trackArray.length - 2, 1, newExit)
         this.routes.trackArray.splice(this.routes.trackArray.length - 1, 1, newEntrance)
 
@@ -631,7 +629,6 @@ export default {
         y: path.map(y => y.lat),
         csv: this.routes.trackCsv,
         exitrefs: this.routes.trackExitId,
-        entrancerefs: this.routes.trackEntranceId,
         connectionrefs: this.routes.trackConnectionsId
       }
 
