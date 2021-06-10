@@ -1,5 +1,6 @@
 <template>
   <div id="map">
+    <HelpScreen v-if="help" />
     <Vignette />
     <ZoomBar ref="zoomBar" :min-zoom="minZoom" :max-zoom="maxZoom" />
 
@@ -106,12 +107,16 @@
         <v-btn outlined class="buttons" @click="toggleAnalytics">
           {{ this.drawerLabel }}
         </v-btn>
+        <v-btn outlined class="buttons" @click="toggleHelp">
+          Help
+        </v-btn>
       </l-control>
     </l-map>
   </div>
 </template>
 
 <script>
+import HelpScreen from './HelpScreen'
 import Vignette from './Vignette'
 import ZoomBar from './ZoomBar'
 import { leafletDraw } from '@/plugins/leafletDraw.js'
@@ -146,6 +151,7 @@ export default {
       oldClickedMarkerPos: null,
       optimisedMarkers: [],
       mode: 'Create Mode',
+      help: false,
 
       minZoom: 0,
       maxZoom: 4,
@@ -256,7 +262,8 @@ export default {
     LLayerGroup,
     LTooltip,
     ZoomBar,
-    Vignette
+    Vignette,
+    HelpScreen
   },
 
   methods: {
@@ -571,6 +578,10 @@ export default {
       let curvatures = { unoptimised: unoptimisedCurvature, optimised: optimisedCurvature }
       this.$store.commit('chart/setCurvature', curvatures)
       eventBus.$emit('notLoading')
+    },
+
+    toggleHelp() {
+      this.help = !this.help
     },
 
     keyPress(event) {
