@@ -35,7 +35,8 @@
       <v-tab-item :key="3" value="configuration">
         <v-container>
           <v-card flat>
-            <Configuration />
+            <Switches />
+            <IOButton />
           </v-card>
         </v-container>
       </v-tab-item>
@@ -45,7 +46,8 @@
 
 <script>
 import AnalysisChart from './AnalysisChart'
-import Configuration from './Configuration'
+import IOButton from './IOButton'
+import Switches from './Switches'
 import Sliders from './Sliders'
 import ConfigFields from './ConfigFields'
 import OptimiseBtn from './OptimiseBtn'
@@ -61,7 +63,8 @@ export default {
 
   components: {
     AnalysisChart,
-    Configuration,
+    IOButton,
+    Switches,
     Sliders,
     ConfigFields,
     OptimiseBtn

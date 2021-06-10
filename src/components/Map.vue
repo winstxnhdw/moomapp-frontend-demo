@@ -106,7 +106,8 @@
 <script>
 import Vignette from './Vignette'
 import ZoomBar from './ZoomBar'
-import { eventBus } from './../event-bus'
+import { leafletDraw } from '@/plugins/leafletDraw.js'
+import { eventBus } from '@/event-bus'
 import { getAPI } from '@/axios'
 import { LMap, LMarker, LControl, LPolyline, LImageOverlay, LControlLayers, LLayerGroup, LTooltip } from 'vue2-leaflet'
 import _ from 'lodash'
@@ -531,7 +532,7 @@ export default {
       }
 
       let curvatures = { unoptimised: unoptimisedCurvature, optimised: optimisedCurvature }
-      eventBus.$emit('curvatures', curvatures)
+      this.$store.commit('chart/setCurvature', curvatures)
       eventBus.$emit('notLoading')
     },
 
@@ -564,12 +565,10 @@ export default {
 
   watch: {
     warnAlert: {
-      handler(newVal) {
-        if (newVal) {
-          setTimeout(() => {
-            this.warnAlert.value = false
-          }, 2000)
-        }
+      handler() {
+        setTimeout(() => {
+          this.warnAlert.value = false
+        }, 2000)
       },
       deep: true
     }
@@ -668,19 +667,7 @@ export default {
 
     this.$nextTick(() => {
       const map = this.$refs.myMap.mapObject
-      const drawControl = new window.L.Control.Draw({
-        position: 'topleft',
-        draw: {
-          polyline: false,
-          polygon: false,
-          rectangle: true,
-          circle: true,
-          circlemarker: false,
-          marker: false
-        }
-      })
-
-      map.addControl(drawControl)
+      leafletDraw(map)
 
       const editableLayers = new window.L.FeatureGroup().addTo(map)
 

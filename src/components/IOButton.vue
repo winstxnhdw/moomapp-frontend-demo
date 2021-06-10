@@ -12,9 +12,9 @@
 </template>
 
 <script>
-import { eventBus } from './../event-bus'
+import { eventBus } from '../event-bus'
 export default {
-  name: 'Configuration',
+  name: 'IOButton',
 
   data() {
     return {

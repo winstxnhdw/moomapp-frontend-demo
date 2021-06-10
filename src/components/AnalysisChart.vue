@@ -5,7 +5,6 @@
 </template>
 
 <script>
-import { eventBus } from './../event-bus'
 import LineChart from './../plugins/chart.js'
 
 export default {
@@ -52,6 +51,18 @@ export default {
     LineChart
   },
 
+  computed: {
+    getCurvature() {
+      return this.$store.state.chart.curvatures
+    }
+  },
+
+  watch: {
+    getCurvature(newVal) {
+      this.fillData(newVal['unoptimised'], newVal['optimised'])
+    }
+  },
+
   methods: {
     range(start, end) {
       return Array(end - start + 1)
@@ -82,12 +93,6 @@ export default {
         ]
       }
     }
-  },
-
-  beforeMount() {
-    eventBus.$on('curvatures', data => {
-      this.fillData(data['unoptimised'], data['optimised'])
-    })
   }
 }
 </script>

@@ -3,25 +3,33 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-const Chart = {
+const AnalysisChart = {
   namespaced: true,
   state: {
     curvatures: {}
   },
   mutations: {
-    setCurvatures(state, data) {
+    setCurvature(state, data) {
       state.curvatures = data
     }
+  }
+}
+
+const Switches = {
+  namespaced: true,
+  state: {
+    togglePiecewise: false
   },
-  getters: {
-    getCurvatures(state) {
-      return state.curvatures
+  mutations: {
+    setToggle(state, data) {
+      state.togglePiecewise = data
     }
   }
 }
 
 export default new Vuex.Store({
   modules: {
-    chart: Chart
+    chart: AnalysisChart,
+    switches: Switches
   }
 })
