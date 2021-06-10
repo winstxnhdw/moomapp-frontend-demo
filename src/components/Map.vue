@@ -89,6 +89,14 @@
         </l-marker>
       </l-layer-group>
 
+      <l-marker
+        v-for="(optimisedMarker, index) in optimisedMarkers"
+        :key="index"
+        :lat-lng="optimisedMarker"
+        :icon="iconOptimised"
+      >
+      </l-marker>
+
       <l-control position="bottomright">
         <v-btn outlined class="buttons" @click="modeSwitch">
           {{ mode }}
@@ -136,6 +144,7 @@ export default {
       selectedMarkers: [],
       oldMarkerPos: [],
       oldClickedMarkerPos: null,
+      optimisedMarkers: [],
       mode: 'Create Mode',
 
       minZoom: 0,
@@ -163,6 +172,15 @@ export default {
         iconSize: [5, 5],
         iconAnchor: [2.5, 2.5],
         shadowUrl: require('/src/assets/s_marker_selected.svg'),
+        shadowSize: [20, 20],
+        shadowAnchor: [10, 10]
+      }),
+
+      iconOptimised: L.icon({
+        iconUrl: require('/src/assets/marker_optimised.svg'),
+        iconSize: [5, 5],
+        iconAnchor: [2.5, 2.5],
+        shadowUrl: require('/src/assets/s_marker_optimised.svg'),
         shadowSize: [20, 20],
         shadowAnchor: [10, 10]
       }),
@@ -469,6 +487,7 @@ export default {
       this.clearSelectedMarkers()
 
       this.markers = []
+      this.optimisedMarkers = []
       this.polyline.array = []
       this.routes.array = []
       this.curbs.array = []
@@ -536,6 +555,24 @@ export default {
       eventBus.$emit('notLoading')
     },
 
+    setOptimisedPiece(data) {
+      this.optimisedMarkers = []
+      let unoptimisedCurvature = []
+      let optimisedCurvature = []
+
+      for (let id in data['x']) {
+        let newLat = data['y'][id]
+        let newLng = data['x'][id]
+        this.optimisedMarkers.push(this.setLatLng(newLat, newLng))
+        unoptimisedCurvature.push(data['wk'][id])
+        optimisedCurvature.push(data['ok'][id])
+      }
+
+      let curvatures = { unoptimised: unoptimisedCurvature, optimised: optimisedCurvature }
+      this.$store.commit('chart/setCurvature', curvatures)
+      eventBus.$emit('notLoading')
+    },
+
     keyPress(event) {
       if (event.originalEvent.key == 'c') {
         this.modeSwitch()
@@ -563,6 +600,12 @@ export default {
     }
   },
 
+  computed: {
+    toggleConfirm() {
+      return this.$store.state.optimisebtn.confirm
+    }
+  },
+
   watch: {
     warnAlert: {
       handler() {
@@ -571,6 +614,15 @@ export default {
         }, 2000)
       },
       deep: true
+    },
+
+    toggleConfirm() {
+      this.selectedMarkersId.forEach((selectedId, i) => {
+        this.markers.splice(selectedId, 1, this.optimisedMarkers[i])
+        this.polyline.array.splice(selectedId, 1, this.optimisedMarkers[i])
+      })
+      this.optimisedMarkers = []
+      this.resetHighlight()
     }
   },
 
@@ -594,6 +646,7 @@ export default {
         return
       }
       let params = {
+        mode: this.$store.state.switches.togglePiecewise,
         x: this.selectedMarkers.map(x => x.lng),
         y: this.selectedMarkers.map(y => y.lat),
         maxlatdev: this.sliders.maxlatdev,
@@ -606,7 +659,11 @@ export default {
       getAPI
         .post('/optimise', params)
         .then(response => {
-          this.setOptimisedPath(response.data)
+          if (params.mode == false) {
+            this.setOptimisedPath(response.data)
+          } else {
+            this.setOptimisedPiece(response.data)
+          }
         })
         .catch(error => {
           eventBus.$emit('cancel')

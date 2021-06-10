@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <v-app>
-      <Mobile v-if="isMobile()" />
+      <Mobile v-if="!isMobile" />
 
       <v-main v-else>
         <v-overlay :value="isLoading" :z-index="10000">

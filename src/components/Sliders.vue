@@ -43,6 +43,7 @@
         :color="slider3.colour"
         :min="slider3.min"
         :max="slider3.max"
+        :disabled="togglePiecewise"
         @change="echoSlider3"
       >
         <template v-slot:append>
@@ -117,6 +118,12 @@ export default {
         min: 0,
         max: 100
       }
+    }
+  },
+
+  computed: {
+    togglePiecewise() {
+      return this.$store.state.switches.togglePiecewise
     }
   },
 

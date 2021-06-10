@@ -3,7 +3,18 @@
     <v-btn align="center" class="mt-8 centreButton" :loading="isLoading" @click="echoOptimise">
       Optimize
     </v-btn>
-    <v-btn align="center" class="mt-2 centreButton" :disabled="isDisabled" @click="clearOptimisedPath">
+
+    <v-btn
+      v-if="togglePiecewise"
+      align="center"
+      class="mt-2 centreButton"
+      :disabled="isDisabled"
+      @click="confirmOptimisedPath"
+    >
+      Confirm
+    </v-btn>
+
+    <v-btn v-else align="center" class="mt-2 centreButton" :disabled="isDisabled" @click="clearOptimisedPath">
       Clear
     </v-btn>
   </div>
@@ -22,6 +33,12 @@ export default {
     }
   },
 
+  computed: {
+    togglePiecewise() {
+      return this.$store.state.switches.togglePiecewise
+    }
+  },
+
   methods: {
     echoOptimise() {
       this.isDisabled = true
@@ -32,6 +49,11 @@ export default {
     clearOptimisedPath() {
       this.isDisabled = true
       eventBus.$emit('clearOptimisedPath')
+    },
+
+    confirmOptimisedPath() {
+      this.isDisabled = true
+      this.$store.commit('optimisebtn/setToggle')
     }
   },
   mounted() {
