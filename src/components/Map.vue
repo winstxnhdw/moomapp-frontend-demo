@@ -89,11 +89,7 @@
         </l-marker>
       </l-layer-group>
 
-      <l-control position="bottomright">
-        <v-btn outlined class="buttons" @click="modeSwitch">
-          {{ mode }}
-        </v-btn>
-      </l-control>
+      <ModeButton @reset-highlight="resetHighlight" />
       <l-control position="bottomleft">
         <v-btn outlined class="buttons" @click="toggleAnalytics">
           {{ this.drawerLabel }}
@@ -104,13 +100,15 @@
 </template>
 
 <script>
+import ModeButton from './ModeButton'
 import Vignette from './Vignette'
 import ZoomBar from './ZoomBar'
-import { eventBus } from './../event-bus'
+import { leafletDraw } from '@/plugins/leafletDraw'
+import { eventBus } from '@/event-bus'
 import { getAPI } from '@/axios'
 import { LMap, LMarker, LControl, LPolyline, LImageOverlay, LControlLayers, LLayerGroup, LTooltip } from 'vue2-leaflet'
-import _ from 'lodash'
 import L from 'leaflet'
+import _ from 'lodash'
 import 'leaflet-draw'
 
 export default {
@@ -237,7 +235,8 @@ export default {
     LLayerGroup,
     LTooltip,
     ZoomBar,
-    Vignette
+    Vignette,
+    ModeButton
   },
 
   methods: {
@@ -270,16 +269,16 @@ export default {
     },
 
     // Event handlers
-    modeSwitch() {
-      this.resetHighlight()
-      if (this.mode == 'Create Mode') {
-        this.mode = 'Delete Mode'
-      } else if (this.mode == 'Delete Mode') {
-        this.mode = 'Create Mode'
-      } else {
-        this.mode = 'Create Mode'
-      }
-    },
+    // modeSwitch() {
+    //   this.resetHighlight()
+    //   if (this.mode == 'Create Mode') {
+    //     this.mode = 'Delete Mode'
+    //   } else if (this.mode == 'Delete Mode') {
+    //     this.mode = 'Create Mode'
+    //   } else {
+    //     this.mode = 'Create Mode'
+    //   }
+    // },
 
     toggleAnalytics() {
       // Open
@@ -531,7 +530,7 @@ export default {
       }
 
       let curvatures = { unoptimised: unoptimisedCurvature, optimised: optimisedCurvature }
-      eventBus.$emit('curvatures', curvatures)
+      this.$store.commit('chart/setCurvature', curvatures)
       eventBus.$emit('notLoading')
     },
 
@@ -562,12 +561,6 @@ export default {
     }
   },
 
-  computed: {
-    togglePiecewise() {
-      return this.$store.state.switches.togglePiecewise
-    }
-  },
-
   watch: {
     warnAlert: {
       handler() {
@@ -576,10 +569,6 @@ export default {
         }, 2000)
       },
       deep: true
-    },
-
-    togglePiecewise(newVal) {
-      console.log(newVal)
     }
   },
 
@@ -676,19 +665,7 @@ export default {
 
     this.$nextTick(() => {
       const map = this.$refs.myMap.mapObject
-      const drawControl = new window.L.Control.Draw({
-        position: 'topleft',
-        draw: {
-          polyline: false,
-          polygon: false,
-          rectangle: true,
-          circle: true,
-          circlemarker: false,
-          marker: false
-        }
-      })
-
-      map.addControl(drawControl)
+      leafletDraw(map)
 
       const editableLayers = new window.L.FeatureGroup().addTo(map)
 
