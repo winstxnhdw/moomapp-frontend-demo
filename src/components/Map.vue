@@ -476,7 +476,6 @@ export default {
       this.routes.trackArray = []
       this.routes.trackCsv = []
       this.routes.trackExitId = []
-      this.routes.trackEntranceId = []
       this.routes.trackConnectionsId = []
 
       let waypointsData = data['waypoints']
