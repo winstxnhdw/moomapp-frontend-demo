@@ -562,16 +562,24 @@ export default {
     }
   },
 
+  computed: {
+    togglePiecewise() {
+      return this.$store.state.switches.togglePiecewise
+    }
+  },
+
   watch: {
     warnAlert: {
-      handler(newVal) {
-        if (newVal) {
-          setTimeout(() => {
-            this.warnAlert.value = false
-          }, 2000)
-        }
+      handler() {
+        setTimeout(() => {
+          this.warnAlert.value = false
+        }, 2000)
       },
       deep: true
+    },
+
+    togglePiecewise(newVal) {
+      console.log(newVal)
     }
   },
 

@@ -12,13 +12,19 @@
 </template>
 
 <script>
-import { eventBus } from './../event-bus'
+import { eventBus } from '../event-bus'
 export default {
-  name: 'Configuration',
+  name: 'IOBtn',
 
   data() {
     return {
-      importLabel: 'Import'
+      importLabel: 'Import',
+      switch1: {
+        value: false,
+        label: 'Toggle Piecewise',
+        colour: 'orange darken-3',
+        hint: 'Toggles'
+      }
     }
   },
 

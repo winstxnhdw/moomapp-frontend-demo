@@ -20,8 +20,21 @@ const Chart = {
   }
 }
 
+const Switches = {
+  namespaced: true,
+  state: {
+    togglePiecewise: false
+  },
+  mutations: {
+    setToggle(state, data) {
+      state.togglePiecewise = data
+    }
+  }
+}
+
 export default new Vuex.Store({
   modules: {
-    chart: Chart
+    chart: Chart,
+    switches: Switches
   }
 })
