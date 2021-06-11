@@ -614,6 +614,10 @@ export default {
   computed: {
     toggleConfirm() {
       return this.$store.state.optimisebtn.confirm
+    },
+
+    togglePiecewise() {
+      return this.$store.state.switches.togglePiecewise
     }
   },
 
@@ -634,6 +638,11 @@ export default {
       })
       this.optimisedMarkers = []
       this.resetHighlight()
+    },
+
+    togglePiecewise() {
+      this.optimisedPath = []
+      this.optimisedMarkers = []
     }
   },
 
