@@ -297,7 +297,7 @@ export default {
 
     // Event handlers
     modeSwitch() {
-      this.resetHighlight()
+      this.clearSelectedMarkers()
       if (this.mode == 'Create Mode') {
         this.mode = 'Delete Mode'
       } else if (this.mode == 'Delete Mode') {
@@ -391,7 +391,7 @@ export default {
         this.markers[index].lng = latlng.lng
       }
 
-      this.resetHighlight()
+      this.clearSelectedMarkers()
 
       setTimeout(() => (this.mode = 'Create Mode'))
     },
@@ -588,7 +588,7 @@ export default {
       if (event.originalEvent.key == 'c') {
         this.modeSwitch()
       } else if (event.originalEvent.key == 'z') {
-        this.resetHighlight()
+        this.clearSelectedMarkers()
         this.markers.pop()
         this.polyline.array.pop()
       } else if (event.originalEvent.key == 'x') {
@@ -637,7 +637,7 @@ export default {
         this.polyline.array.splice(selectedId, 1, this.optimisedMarkers[i])
       })
       this.optimisedMarkers = []
-      this.resetHighlight()
+      this.clearSelectedMarkers()
     },
 
     togglePiecewise() {
