@@ -1,11 +1,11 @@
-# moomap-frontend
+# moomapp-frontend
 
 A single-page web application to showcase the possibilities of a robust route optimiser built on Vue and Leaflet.js for MooVita. This is also my very first web app/site.
 
 > I do not have the permission to reveal the actual application I developed for MooVita. This is only a showcase demo I built to familiarise myself with the Vue framework.
 
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/winstxnhdw/moomap-frontend-demo.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/winstxnhdw/moomap-frontend-demo/alerts/)
-[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/winstxnhdw/moomap-frontend-demo.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/winstxnhdw/moomap-frontend-demo/context:javascript)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/winstxnhdw/moomapp-frontend-demo.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/winstxnhdw/moomapp-frontend-demo/alerts/)
+[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/winstxnhdw/moomapp-frontend-demo.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/winstxnhdw/moomapp-frontend-demo/context:javascript)
 
 <div align="center">
 	<img src="resources/splashscreen.png" />
