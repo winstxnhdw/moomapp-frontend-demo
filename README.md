@@ -5,7 +5,7 @@ A single-page web application to showcase the possibilities of a robust route op
 > This is only a showcase demo I built to familiarise myself with the Vue framework and not the actual deployed application for MooVita.
 
 <div align="center">
-	<img src="resources/splashscreen.png" />
+	<img src="resources/splashscreen.gif" />
 </div>
 
 ## Project setup
