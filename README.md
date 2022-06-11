@@ -2,7 +2,7 @@
 
 This is my very first web app/site.
 
-> This is a showcase demo I built to familiarise myself with the Vue framework and not the actual deployed application for MooVita.
+> **Note**: This is a showcase demo I built to familiarise myself with the Vue framework and not the actual deployed application for MooVita.
 
 <div align="center">
 	<img src="resources/splashscreen.gif" />
